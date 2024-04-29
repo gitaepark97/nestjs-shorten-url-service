@@ -1,6 +1,19 @@
 version: '3.4'
 
 services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root_password
+      - MONGO_INITDB_DATABASE=dev_database
+    volumes:
+      - ./mongodb/initdb.d:/docker-entrypoint-initdb.d:ro
+      - mongodb:/data/db
+
   url-shortener:
     container_name: url-shortener
     build:
@@ -11,3 +24,8 @@ services:
     volumes:
       - ./url-shortener:/app
       - /app/node_modules
+    depends_on:
+      - mongodb
+      
+volumes:
+  mongodb:
