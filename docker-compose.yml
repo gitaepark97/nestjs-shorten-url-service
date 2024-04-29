@@ -1,0 +1,13 @@
+version: '3.4'
+
+services:
+  url-shortener:
+    container_name: url-shortener
+    build:
+      context: ./url-shortener
+      dockerfile: Dockerfile.development
+    ports:
+      - 3000:3000
+    volumes:
+      - ./url-shortener:/app
+      - /app/node_modules
