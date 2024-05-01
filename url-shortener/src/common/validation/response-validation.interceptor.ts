@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
   NestInterceptor,
 } from '@nestjs/common';
-import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
 import { Observable, switchMap } from 'rxjs';
 
@@ -18,10 +18,9 @@ export class ResponseValidationInterceptor<T extends object>
   intercept(_: ExecutionContext, next: CallHandler): Observable<T> {
     return next.handle().pipe(
       switchMap(async (data) => {
-        const transformedData = plainToInstance(
-          this.responseModel,
-          instanceToPlain(data),
-        );
+        const transformedData = plainToInstance(this.responseModel, data, {
+          excludeExtraneousValues: true,
+        });
         try {
           await validateOrReject(transformedData, { stopAtFirstError: true });
 
