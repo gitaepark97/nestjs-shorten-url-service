@@ -28,7 +28,7 @@ describe('ShortenUrlController (e2e)', () => {
     await mongooseConnection.collection('shorten_urls').drop();
   });
 
-  describe('/api/shorten-urls (POST)', () => {
+  describe('/shorten-urls (POST)', () => {
     it('단축 URL 생성', async () => {
       // given
       const requestBody = {
@@ -39,7 +39,7 @@ describe('ShortenUrlController (e2e)', () => {
       const { statusCode, body: responseBody } = await request(
         app.getHttpServer(),
       )
-        .post('/api/shorten-urls')
+        .post('/shorten-urls')
         .send(requestBody);
 
       // then
@@ -58,9 +58,7 @@ describe('ShortenUrlController (e2e)', () => {
       const tryCount = 10;
       const responses = await Promise.all(
         Array.from({ length: tryCount }, () =>
-          request(app.getHttpServer())
-            .post('/api/shorten-urls')
-            .send(requestBody),
+          request(app.getHttpServer()).post('/shorten-urls').send(requestBody),
         ),
       );
 
@@ -80,10 +78,10 @@ describe('ShortenUrlController (e2e)', () => {
 
       // when
       const { body: responseBody1 } = await request(app.getHttpServer())
-        .post('/api/shorten-urls')
+        .post('/shorten-urls')
         .send(requestBody);
       const { body: responseBody2 } = await request(app.getHttpServer())
-        .post('/api/shorten-urls')
+        .post('/shorten-urls')
         .send(requestBody);
 
       // then
@@ -101,14 +99,14 @@ describe('ShortenUrlController (e2e)', () => {
         const { statusCode, body: responseBody } = await request(
           app.getHttpServer(),
         )
-          .post('/api/shorten-urls')
+          .post('/shorten-urls')
           .send(requestBody);
 
         // then
         expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
         expect(responseBody.statusCode).toBe(HttpStatus.BAD_REQUEST);
         expect(responseBody.timestamp).toEqual(expect.any(String));
-        expect(responseBody.path).toBe('/api/shorten-urls');
+        expect(responseBody.path).toBe('/shorten-urls');
         expect(responseBody.message).toBe('올바른 URL을 입력하세요.');
       });
     });

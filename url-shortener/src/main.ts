@@ -10,6 +10,7 @@ async function bootstrap() {
 
   const config = app.get(serverConfig.KEY);
 
+  app.setGlobalPrefix('/api/v1');
   app.enableCors();
   app.use(helmet());
 

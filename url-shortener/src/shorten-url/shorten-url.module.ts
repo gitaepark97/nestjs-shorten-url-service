@@ -9,6 +9,7 @@ import {
   ShortenUrlSchema,
 } from './adapter/out/persistence/shorten-url.entity';
 import { CreateShortenUrlUseCase } from './application/port/in/create-shorten-url.use-case';
+import { GetOriginalUrlUseCase } from './application/port/in/get-original-url.use-case';
 import { CommandShortenUrlPort } from './application/port/out/command-shorten-url.port';
 import { GetCountPort } from './application/port/out/get-count.port';
 import { CreateShortenUrlService } from './application/service/create-shorten-url.service';
@@ -23,6 +24,7 @@ const ports = [
 
 const useCases = [
   { provide: CreateShortenUrlUseCase, useClass: CreateShortenUrlService },
+  { provide: GetOriginalUrlUseCase, useValue: {} },
 ];
 
 @Module({

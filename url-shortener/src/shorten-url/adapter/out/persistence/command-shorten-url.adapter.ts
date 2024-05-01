@@ -18,4 +18,9 @@ export class CommandShortenUrlAdapter implements CommandShortenUrlPort {
     await shortenUrlEntity.save();
     return ShortenUrlMapper.entityToDomain(shortenUrlEntity);
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  increaseVisitCount(shortenUrlId: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
 }
