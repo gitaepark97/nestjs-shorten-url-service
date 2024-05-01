@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Environment } from 'src/config/env.validation';
 
@@ -14,3 +14,14 @@ export const setUpSwagger = (app: INestApplication): void => {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 };
+
+export const generateErrorExample = (
+  statusCode: HttpStatus,
+  path: string,
+  message: string,
+) => ({
+  statusCode,
+  timestamp: '0000-00-00T00:00:00.000Z',
+  path,
+  message,
+});

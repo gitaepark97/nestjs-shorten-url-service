@@ -8,3 +8,5 @@ db.createUser({
     },
   ],
 });
+
+db.counts.insert({ current: 0 });
