@@ -4,6 +4,7 @@ import { GetCountService } from 'src/counter/application/service/get-count.servi
 import { CounterModule } from 'src/counter/counter.module';
 import { ShortenUrlController } from './adapter/in/web/shorten-url.controller';
 import { CommandShortenUrlAdapter } from './adapter/out/persistence/command-shorten-url.adapter';
+import { QueryShortenUrlAdapter } from './adapter/out/persistence/query-shorten-url.adapter';
 import {
   ShortenUrlEntity,
   ShortenUrlSchema,
@@ -12,7 +13,9 @@ import { CreateShortenUrlUseCase } from './application/port/in/create-shorten-ur
 import { GetOriginalUrlUseCase } from './application/port/in/get-original-url.use-case';
 import { CommandShortenUrlPort } from './application/port/out/command-shorten-url.port';
 import { GetCountPort } from './application/port/out/get-count.port';
+import { QueryShortenUrlPort } from './application/port/out/query-shorten-url.port';
 import { CreateShortenUrlService } from './application/service/create-shorten-url.service';
+import { GetOriginalUrlService } from './application/service/get-original-url.service';
 
 const ports = [
   { provide: GetCountPort, useClass: GetCountService },
@@ -20,11 +23,12 @@ const ports = [
     provide: CommandShortenUrlPort,
     useClass: CommandShortenUrlAdapter,
   },
+  { provide: QueryShortenUrlPort, useClass: QueryShortenUrlAdapter },
 ];
 
 const useCases = [
   { provide: CreateShortenUrlUseCase, useClass: CreateShortenUrlService },
-  { provide: GetOriginalUrlUseCase, useValue: {} },
+  { provide: GetOriginalUrlUseCase, useClass: GetOriginalUrlService },
 ];
 
 @Module({

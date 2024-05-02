@@ -41,7 +41,7 @@ export class ShortenUrlController {
   })
   @ApiCreatedResponse({ description: '성공', type: ShortenUrlResponse })
   @ApiBadRequestResponse({
-    description: 'param 오류',
+    description: '잘못된 입력',
     content: {
       'application/json': {
         examples: {
@@ -85,7 +85,7 @@ export class ShortenUrlController {
   })
   @ApiFoundResponse({ description: '성공' })
   @ApiBadRequestResponse({
-    description: 'param 오류',
+    description: '잘못된 입력',
     content: {
       'application/json': {
         examples: {
@@ -101,7 +101,7 @@ export class ShortenUrlController {
     },
   })
   @ApiNotFoundResponse({
-    description: '존재 오류',
+    description: '존재하지 않는 데이터',
     content: {
       'application/json': {
         examples: {

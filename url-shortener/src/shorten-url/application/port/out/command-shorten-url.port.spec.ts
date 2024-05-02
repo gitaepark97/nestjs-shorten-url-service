@@ -45,9 +45,10 @@ describe('CommandShortenUrlPort', () => {
   describe('save', () => {
     it('단축 URL 저장', async () => {
       // given
+      const shortenUrlKey = 'shortenUrlKey';
       const originalUrl = 'https://www.google.com';
       const shortenUrl = ShortenUrl.builder()
-        .set('key', 'shortenUrlKey')
+        .set('key', shortenUrlKey)
         .set('originalUrl', originalUrl)
         .build();
 
@@ -76,7 +77,7 @@ describe('CommandShortenUrlPort', () => {
 
       // when
       const results = await Promise.all(
-        Array.from({ length: tryCount }, async (_, idx) =>
+        Array.from({ length: tryCount }, (_, idx) =>
           port.save(shortenUrls[idx]),
         ),
       );
@@ -90,6 +91,55 @@ describe('CommandShortenUrlPort', () => {
         expect(result.createdAt).toEqual(expect.any(Date));
         expect(result.updatedAt).toEqual(expect.any(Date));
       });
+    });
+  });
+
+  describe('increaseVisitCount', () => {
+    it('단축 URL 조회 수 증가', async () => {
+      // given
+      const shortenUrlKey = 'shortenUrlKey';
+      const originalUrl = 'https://www.google.com';
+      let shortenUrl = ShortenUrl.builder()
+        .set('key', shortenUrlKey)
+        .set('originalUrl', originalUrl)
+        .build();
+      shortenUrl = await port.save(shortenUrl);
+
+      // when
+      await port.increaseVisitCount(shortenUrl.id);
+
+      // then
+      const shortenUrlEntity = await mongooseConnection
+        .collection('shorten_urls')
+        .findOne({ key: shortenUrl.key });
+      expect(shortenUrlEntity!.visitCount).toBe(shortenUrl.visitCount + 1);
+    });
+
+    it('동시성 테스트', async () => {
+      // given
+      const shortenUrlKey = 'shortenUrlKey';
+      const originalUrl = 'https://www.google.com';
+      let shortenUrl = ShortenUrl.builder()
+        .set('key', shortenUrlKey)
+        .set('originalUrl', originalUrl)
+        .build();
+      shortenUrl = await port.save(shortenUrl);
+
+      // when
+      const tryCount = 10;
+      await Promise.all(
+        Array.from({ length: tryCount }, () =>
+          port.increaseVisitCount(shortenUrl.id),
+        ),
+      );
+
+      // then
+      const shortenUrlEntity = await mongooseConnection
+        .collection('shorten_urls')
+        .findOne({ key: shortenUrl.key });
+      expect(shortenUrlEntity!.visitCount).toBe(
+        shortenUrl.visitCount + tryCount,
+      );
     });
   });
 });

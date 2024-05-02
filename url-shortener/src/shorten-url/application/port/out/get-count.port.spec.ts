@@ -53,7 +53,7 @@ describe('GetCountUsePort', () => {
       // when
       const tryCount = 10;
       const results = await Promise.all(
-        Array.from({ length: tryCount }, async () => port.execute()),
+        Array.from({ length: tryCount }, () => port.execute()),
       );
 
       // then

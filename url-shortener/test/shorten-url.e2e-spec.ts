@@ -111,4 +111,87 @@ describe('ShortenUrlController (e2e)', () => {
       });
     });
   });
+
+  describe('/:shortenUrlKey (POST)', () => {
+    it('원본 URL 리다이렉트', async () => {
+      // given
+      const originalUrl = 'https://www.google.com';
+      const { body: shortenUrl } = await request(app.getHttpServer())
+        .post('/shorten-urls')
+        .send({ originalUrl });
+
+      const shortenUrlKey = shortenUrl.key;
+
+      // when
+      const { statusCode, header } = await request(app.getHttpServer()).get(
+        `/${shortenUrlKey}`,
+      );
+
+      // then
+      expect(statusCode).toBe(HttpStatus.FOUND);
+      expect(header.location).toBe(originalUrl);
+    });
+
+    it('동시성 테스트', async () => {
+      // given
+      const originalUrl = 'https://www.google.com';
+      const { body: shortenUrl } = await request(app.getHttpServer())
+        .post('/shorten-urls')
+        .send({ originalUrl });
+
+      const shortenUrlKey = shortenUrl.key;
+
+      // when
+      const tryCount = 10;
+      const responses = await Promise.all(
+        Array.from({ length: tryCount }, () =>
+          request(app.getHttpServer()).get(`/${shortenUrlKey}`),
+        ),
+      );
+
+      // then
+      responses.forEach(({ statusCode, header }) => {
+        expect(statusCode).toBe(HttpStatus.FOUND);
+        expect(header.location).toBe(originalUrl);
+      });
+    });
+
+    describe('잘못된 입력', () => {
+      it('7글자가 아닌 단축 URL 키', async () => {
+        // given
+        const shortenUrlKey = 'wrong_shorten_url_key';
+
+        // when
+        const { statusCode, body: responseBody } = await request(
+          app.getHttpServer(),
+        ).get(`/${shortenUrlKey}`);
+
+        // then
+        expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+        expect(responseBody.statusCode).toBe(HttpStatus.BAD_REQUEST);
+        expect(responseBody.timestamp).toEqual(expect.any(String));
+        expect(responseBody.path).toBe(`/${shortenUrlKey}`);
+        expect(responseBody.message).toBe('7자리 문자열을 입력하세요');
+      });
+    });
+
+    describe('존재하지 않는 데이터', () => {
+      it('존재하지 않는 단축 URL', async () => {
+        // given
+        const shortenUrlKey = '0000000';
+
+        // when
+        const { statusCode, body: responseBody } = await request(
+          app.getHttpServer(),
+        ).get(`/${shortenUrlKey}`);
+
+        // then
+        expect(statusCode).toBe(HttpStatus.NOT_FOUND);
+        expect(responseBody.statusCode).toBe(HttpStatus.NOT_FOUND);
+        expect(responseBody.timestamp).toEqual(expect.any(String));
+        expect(responseBody.path).toBe(`/${shortenUrlKey}`);
+        expect(responseBody.message).toBe('등록된 단축 URL이 아닙니다.');
+      });
+    });
+  });
 });
