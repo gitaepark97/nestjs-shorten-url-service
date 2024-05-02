@@ -21,4 +21,13 @@ export class QueryShortenUrlAdapter implements QueryShortenUrlPort {
       shortenUrlEntity && ShortenUrlMapper.entityToDomain(shortenUrlEntity)
     );
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  findShortenUrls(offset: number, limit: number): Promise<ShortenUrl[]> {
+    throw new Error('Method not implemented.');
+  }
+
+  count(): Promise<number> {
+    throw new Error('Method not implemented.');
+  }
 }
