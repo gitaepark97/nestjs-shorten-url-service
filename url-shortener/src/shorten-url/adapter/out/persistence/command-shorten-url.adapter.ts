@@ -18,4 +18,11 @@ export class CommandShortenUrlAdapter implements CommandShortenUrlPort {
     await shortenUrlEntity.save();
     return ShortenUrlMapper.entityToDomain(shortenUrlEntity);
   }
+
+  async increaseVisitCount(shortenUrlId: string): Promise<void> {
+    await this.shortenUrlModel.updateOne({
+      _id: shortenUrlId,
+      $inc: { visitCount: 1 },
+    });
+  }
 }
