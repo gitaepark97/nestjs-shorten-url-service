@@ -20,9 +20,9 @@ export class CommandShortenUrlAdapter implements CommandShortenUrlPort {
   }
 
   async increaseVisitCount(shortenUrlId: string): Promise<void> {
-    await this.shortenUrlModel.updateOne({
-      _id: shortenUrlId,
-      $inc: { visitCount: 1 },
-    });
+    await this.shortenUrlModel.updateOne(
+      { _id: shortenUrlId },
+      { $inc: { visitCount: 1 } },
+    );
   }
 }
