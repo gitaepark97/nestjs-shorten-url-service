@@ -55,8 +55,12 @@ describe('GetOriginalUrlUseCase', () => {
         .spyOn(queryShortenUrlPort, 'findShortenUrlByKey')
         .mockImplementationOnce(async (shortenUrlKey) =>
           ShortenUrl.builder()
+            .set('id', 'id')
             .set('key', shortenUrlKey)
             .set('originalUrl', originalUrl)
+            .set('visitCount', 0)
+            .set('createdAt', new Date())
+            .set('updatedAt', new Date())
             .build(),
         );
       const increaseVisitCountMock = jest

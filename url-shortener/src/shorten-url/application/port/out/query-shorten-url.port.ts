@@ -4,4 +4,6 @@ export abstract class QueryShortenUrlPort {
   abstract findShortenUrlByKey(
     shortenUrlKey: string,
   ): Promise<ShortenUrl | null>;
+  abstract findShortenUrls(skip: number, limit: number): Promise<ShortenUrl[]>;
+  abstract count(): Promise<number>;
 }

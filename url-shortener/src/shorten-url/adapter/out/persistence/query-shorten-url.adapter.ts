@@ -21,4 +21,16 @@ export class QueryShortenUrlAdapter implements QueryShortenUrlPort {
       shortenUrlEntity && ShortenUrlMapper.entityToDomain(shortenUrlEntity)
     );
   }
+
+  async findShortenUrls(skip: number, limit: number): Promise<ShortenUrl[]> {
+    const shortenUrlEntities = await this.shortenUrlModel
+      .find()
+      .skip(skip)
+      .limit(limit);
+    return ShortenUrlMapper.entitiesToDomains(shortenUrlEntities);
+  }
+
+  count(): Promise<number> {
+    return this.shortenUrlModel.countDocuments();
+  }
 }
