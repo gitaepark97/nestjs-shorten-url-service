@@ -17,6 +17,7 @@ import { GetCountPort } from './application/port/out/get-count.port';
 import { QueryShortenUrlPort } from './application/port/out/query-shorten-url.port';
 import { CreateShortenUrlService } from './application/service/create-shorten-url.service';
 import { GetOriginalUrlService } from './application/service/get-original-url.service';
+import { GetShortenUrlsService } from './application/service/get-shorten-urls.service';
 
 const ports = [
   { provide: GetCountPort, useClass: GetCountService },
@@ -30,7 +31,7 @@ const ports = [
 const useCases = [
   { provide: CreateShortenUrlUseCase, useClass: CreateShortenUrlService },
   { provide: GetOriginalUrlUseCase, useClass: GetOriginalUrlService },
-  { provide: GetShortenUrlsUseCase, useValue: {} },
+  { provide: GetShortenUrlsUseCase, useClass: GetShortenUrlsService },
 ];
 
 @Module({

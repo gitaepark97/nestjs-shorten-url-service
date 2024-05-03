@@ -12,4 +12,8 @@ export abstract class ShortenUrlMapper {
       .set('updatedAt', entity.updatedAt)
       .build();
   }
+
+  static entitiesToDomains(entities: ShortenUrlEntity[]): ShortenUrl[] {
+    return entities.map((entity) => ShortenUrlMapper.entityToDomain(entity));
+  }
 }

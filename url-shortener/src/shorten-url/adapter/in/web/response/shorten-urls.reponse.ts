@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import {
-  IsDateString,
+  IsDate,
   IsInt,
   IsNotEmpty,
   IsUrl,
@@ -42,7 +42,7 @@ class ShortenUrlResponse {
     example: '0000-00-00T00:00:00.000Z',
   })
   @Expose()
-  @IsDateString()
+  @IsDate()
   readonly createdAt: Date;
 
   @ApiProperty({
@@ -50,7 +50,7 @@ class ShortenUrlResponse {
     example: '0000-00-00T00:00:00.000Z',
   })
   @Expose()
-  @IsDateString()
+  @IsDate()
   readonly updatedAt: Date;
 }
 

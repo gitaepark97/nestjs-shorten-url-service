@@ -22,12 +22,15 @@ export class QueryShortenUrlAdapter implements QueryShortenUrlPort {
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  findShortenUrls(offset: number, limit: number): Promise<ShortenUrl[]> {
-    throw new Error('Method not implemented.');
+  async findShortenUrls(skip: number, limit: number): Promise<ShortenUrl[]> {
+    const shortenUrlEntities = await this.shortenUrlModel
+      .find()
+      .skip(skip)
+      .limit(limit);
+    return ShortenUrlMapper.entitiesToDomains(shortenUrlEntities);
   }
 
   count(): Promise<number> {
-    throw new Error('Method not implemented.');
+    return this.shortenUrlModel.countDocuments();
   }
 }

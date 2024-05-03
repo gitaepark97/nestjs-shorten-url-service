@@ -25,9 +25,10 @@ import { CreateShortenUrlUseCase } from 'src/shorten-url/application/port/in/cre
 import { GetOriginalUrlUseCase } from 'src/shorten-url/application/port/in/get-original-url.use-case';
 import { GetShortenUrlsUseCase } from 'src/shorten-url/application/port/in/get-shorten-urls.use-case';
 import { GetOriginalUrlQuery } from 'src/shorten-url/application/port/in/query/get-original-url.query';
+import { GetShortenUrlsQuery } from 'src/shorten-url/application/port/in/query/get-shorten-urls.query';
 import { generateErrorExample } from 'src/util/swagger.util';
 import { CreateShortenUrlRequestBody } from './request/create-shorten-url.request';
-import { GetShortenUrlsQuery } from './request/get-shorten-urls.request';
+import { GetShortenUrlsRequestQuery } from './request/get-shorten-urls.request';
 import { RedirectToOriginalUrlRequestPath } from './request/redirect-to-original-url.request';
 import { ShortenUrlKeyResponse } from './response/shorten-url-key.response';
 import { ShortenUrlsResponse } from './response/shorten-urls.reponse';
@@ -134,7 +135,7 @@ export class ShortenUrlController {
       },
     },
   })
-  @Get(':shortenUrlKey')
+  @Get('shorten-urls/:shortenUrlKey')
   @Redirect()
   async redirectToOriginalUrl(@Param() path: RedirectToOriginalUrlRequestPath) {
     const query = GetOriginalUrlQuery.builder()
@@ -188,9 +189,12 @@ export class ShortenUrlController {
   @Get('shorten-urls')
   @UseInterceptors(new ResponseValidationInterceptor(ShortenUrlsResponse))
   async getShortenUrls(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @Query() query: GetShortenUrlsQuery,
+    @Query() requestQuery: GetShortenUrlsRequestQuery,
   ): Promise<ShortenUrlsResponse> {
-    return { shortenUrls: [], totalCount: 0 };
+    const query = GetShortenUrlsQuery.builder()
+      .set('pageNumber', requestQuery.pageNumber)
+      .set('pageSize', requestQuery.pageSize)
+      .build();
+    return this.getShortenUrlsUseCase.execute(query);
   }
 }
