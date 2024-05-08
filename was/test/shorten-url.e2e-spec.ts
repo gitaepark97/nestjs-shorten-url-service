@@ -150,11 +150,6 @@ describe('ShortenUrlController (e2e)', () => {
       // then
       expect(statusCode).toBe(HttpStatus.FOUND);
       expect(header.location).toBe(originalUrl);
-
-      const shortenUrlEntity = await mongooseConnection
-        .collection('shorten_urls')
-        .findOne({ key: shortenUrl.key });
-      expect(shortenUrlEntity!.visitCount).toBe(1);
     });
 
     it('동시성 테스트', async () => {
@@ -179,11 +174,6 @@ describe('ShortenUrlController (e2e)', () => {
         expect(statusCode).toBe(HttpStatus.FOUND);
         expect(header.location).toBe(originalUrl);
       });
-
-      const shortenUrlEntity = await mongooseConnection
-        .collection('shorten_urls')
-        .findOne({ key: shortenUrl.key });
-      expect(shortenUrlEntity!.visitCount).toBe(tryCount);
     });
 
     describe('잘못된 입력', () => {

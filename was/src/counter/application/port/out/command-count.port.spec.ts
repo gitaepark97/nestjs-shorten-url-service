@@ -7,7 +7,7 @@ import {
   CountEntity,
   CountSchema,
 } from 'src/counter/adapter/out/persistence/entity/count.entity';
-import { CommandCountPort } from '../out/command-count.port';
+import { CommandCountPort } from './command-count.port';
 
 describe('CommandCountPort', () => {
   let port: CommandCountPort;
