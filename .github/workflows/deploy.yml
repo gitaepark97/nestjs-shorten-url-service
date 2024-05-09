@@ -1,0 +1,88 @@
+name: deploy
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+env:
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: mongo
+        env:
+          MONGO_INITDB_DATABASE: test
+        ports:
+          - 27010:27017
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v3
+      - name: Setup node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.19.0
+          cache: "npm"
+          cache-dependency-path: "./was/package-lock.json"
+      - run: npm install
+        working-directory: was
+      - run: npm run test && npm run test:e2e
+        working-directory: was
+
+  build:
+    name: Build
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Load secrets and save to .env.production
+        run: aws secretsmanager get-secret-value --secret-id ${{ secrets.AWS_SECRETS_MANAGER_NAME }} --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > ./was/src/config/env/.env.production
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build & Push Image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest ./was
+          docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: [self-hosted]
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Pull image from Amazon ECR and restart container
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker container stop was && docker container rm was
+          docker run -d --name was -p 8080:8080 -v /logs:/app/logs --restart unless-stopped $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker system prune -af && docker volume prune -f
