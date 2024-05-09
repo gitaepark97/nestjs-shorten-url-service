@@ -2,13 +2,13 @@ import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Connection } from 'mongoose';
 import { ConfigModule } from 'src/config/config.module';
-import { QueryShortenUrlAdapter } from 'src/shorten-url/adapter/out/persistence/query-shorten-url.adapter';
 import {
   ShortenUrlEntity,
   ShortenUrlSchema,
-} from 'src/shorten-url/adapter/out/persistence/shorten-url.entity';
+} from 'src/shorten-url/adapter/out/persistence/entity/shorten-url.entity';
+import { ShortenUrlAdapter } from 'src/shorten-url/adapter/out/persistence/shorten-url.adapter';
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
-import { QueryShortenUrlPort } from './query-shorten-url.port';
+import { QueryShortenUrlPort } from './qeury-shorten-url.port';
 
 describe('QueryShortenUrlPort', () => {
   let port: QueryShortenUrlPort;
@@ -25,7 +25,7 @@ describe('QueryShortenUrlPort', () => {
       providers: [
         {
           provide: QueryShortenUrlPort,
-          useClass: QueryShortenUrlAdapter,
+          useClass: ShortenUrlAdapter,
         },
       ],
     }).compile();

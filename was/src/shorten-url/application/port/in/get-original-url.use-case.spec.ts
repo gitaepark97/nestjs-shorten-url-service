@@ -2,9 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
 import { GetOriginalUrlService } from '../../service/get-original-url.service';
 import { CommandShortenUrlPort } from '../out/command-shorten-url.port';
-import { QueryShortenUrlPort } from '../out/query-shorten-url.port';
+import { QueryShortenUrlPort } from '../out/qeury-shorten-url.port';
 import { GetOriginalUrlUseCase } from './get-original-url.use-case';
-import { GetOriginalUrlQuery } from './query/get-original-url.query';
 
 describe('GetOriginalUrlUseCase', () => {
   let useCase: GetOriginalUrlUseCase;
@@ -47,9 +46,6 @@ describe('GetOriginalUrlUseCase', () => {
       // given
       const shortenUrlKey = 'shortenUrlKey';
       const originalUrl = 'https://www.google.com';
-      const query = GetOriginalUrlQuery.builder()
-        .set('shortenUrlKey', shortenUrlKey)
-        .build();
 
       const findShortenUrlByKeyMock = jest
         .spyOn(queryShortenUrlPort, 'findShortenUrlByKey')
@@ -68,7 +64,7 @@ describe('GetOriginalUrlUseCase', () => {
         .mockResolvedValueOnce();
 
       // when
-      const result = await useCase.execute(query);
+      const result = await useCase.execute(shortenUrlKey);
 
       // then
       expect(result).toBe(originalUrl);
@@ -82,9 +78,6 @@ describe('GetOriginalUrlUseCase', () => {
     // given
     const shortenUrlKey = 'shortenUrlKey';
     const originalUrl = 'https://www.google.com';
-    const query = GetOriginalUrlQuery.builder()
-      .set('shortenUrlKey', shortenUrlKey)
-      .build();
 
     const findShortenUrlByKeyMock = jest
       .spyOn(queryShortenUrlPort, 'findShortenUrlByKey')
@@ -101,7 +94,7 @@ describe('GetOriginalUrlUseCase', () => {
     // when
     const tryCount = 10;
     const results = await Promise.all(
-      Array.from({ length: tryCount }, () => useCase.execute(query)),
+      Array.from({ length: tryCount }, () => useCase.execute(shortenUrlKey)),
     );
 
     // then
@@ -117,9 +110,6 @@ describe('GetOriginalUrlUseCase', () => {
     it('존재하지 않는 단축 URL', async () => {
       // given
       const shortenUrlKey = 'shortenUrlKey';
-      const query = GetOriginalUrlQuery.builder()
-        .set('shortenUrlKey', shortenUrlKey)
-        .build();
 
       const findShortenUrlByKeyMock = jest
         .spyOn(queryShortenUrlPort, 'findShortenUrlByKey')
@@ -129,7 +119,7 @@ describe('GetOriginalUrlUseCase', () => {
         .mockResolvedValueOnce();
 
       // when
-      expect(async () => await useCase.execute(query)).rejects.toThrow(
+      expect(async () => await useCase.execute(shortenUrlKey)).rejects.toThrow(
         '등록된 단축 URL이 아닙니다.',
       );
       // then

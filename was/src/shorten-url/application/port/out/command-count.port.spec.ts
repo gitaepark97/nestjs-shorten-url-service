@@ -2,11 +2,11 @@ import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Connection } from 'mongoose';
 import { ConfigModule } from 'src/config/config.module';
-import { CommandCountAdapter } from 'src/counter/adapter/out/persistence/command-count.adapter';
+import { CountAdapter } from 'src/shorten-url/adapter/out/persistence/count.adapter';
 import {
   CountEntity,
   CountSchema,
-} from 'src/counter/adapter/out/persistence/entity/count.entity';
+} from 'src/shorten-url/adapter/out/persistence/entity/count.entity';
 import { CommandCountPort } from './command-count.port';
 
 describe('CommandCountPort', () => {
@@ -24,7 +24,7 @@ describe('CommandCountPort', () => {
       providers: [
         {
           provide: CommandCountPort,
-          useClass: CommandCountAdapter,
+          useClass: CountAdapter,
         },
       ],
     }).compile();
@@ -40,41 +40,41 @@ describe('CommandCountPort', () => {
     await mongooseConnection.collection('shorten_urls').drop();
   });
 
-  it('should be defined', () => {
-    expect(port).toBeDefined();
-  });
-
   describe('findCountAndIncrease', () => {
-    it('count 조회 및 증가', async () => {
-      // given
+    describe('성공', () => {
+      it('count 조회 및 증가', async () => {
+        // given
 
-      // when
-      const result1 = await port.findCountAndIncrease();
-      const result2 = await port.findCountAndIncrease();
+        // when
+        const result1 = await port.findCountAndIncrease();
+        const result2 = await port.findCountAndIncrease();
 
-      // then
-      expect(result1).toBe(0);
-      expect(result2).toBe(result1 + 1);
+        // then
+        expect(result1).toBe(0);
+        expect(result2).toBe(result1 + 1);
+      });
     });
 
-    it('동시성 테스트', async () => {
-      // given
+    describe('동시성 테스트', () => {
+      it('count 조회 및 증가', async () => {
+        // given
 
-      // when
-      const tryCount = 10;
-      const results = await Promise.all(
-        Array.from({ length: tryCount }, async () =>
-          port.findCountAndIncrease(),
-        ),
-      );
+        // when
+        const tryCount = 10;
+        const results = await Promise.all(
+          Array.from({ length: tryCount }, async () =>
+            port.findCountAndIncrease(),
+          ),
+        );
 
-      // then
-      const visited = Array.from({ length: tryCount }, () => false);
-      results.forEach((result) => {
-        visited[result] = true;
+        // then
+        const visited = Array.from({ length: tryCount }, () => false);
+        results.forEach((result) => {
+          visited[result] = true;
+        });
+
+        visited.forEach((val) => expect(val).toBeTruthy());
       });
-
-      visited.forEach((val) => expect(val).toBeTruthy());
     });
   });
 });

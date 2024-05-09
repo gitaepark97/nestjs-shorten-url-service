@@ -1,9 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
 import { GetShortenUrlsService } from '../../service/get-shorten-urls.service';
-import { QueryShortenUrlPort } from '../out/query-shorten-url.port';
+import { QueryShortenUrlPort } from '../out/qeury-shorten-url.port';
 import { GetShortenUrlsUseCase } from './get-shorten-urls.use-case';
-import { GetShortenUrlsQuery } from './query/get-shorten-urls.query';
 
 describe('GetShortenUrlsUseCase', () => {
   let useCase: GetShortenUrlsUseCase;
@@ -39,10 +38,6 @@ describe('GetShortenUrlsUseCase', () => {
       const totalCount = 20;
       const pageNumber = 2;
       const pageSize = 5;
-      const query = GetShortenUrlsQuery.builder()
-        .set('pageNumber', pageNumber)
-        .set('pageSize', pageSize)
-        .build();
 
       const findShortenUrlsMock = jest
         .spyOn(queryShortenUrlPort, 'findShortenUrls')
@@ -63,7 +58,7 @@ describe('GetShortenUrlsUseCase', () => {
         .mockResolvedValueOnce(totalCount);
 
       // when
-      const result = await useCase.execute(query);
+      const result = await useCase.execute(pageNumber, pageSize);
 
       // then
       expect(result.shortenUrls.length).toBe(pageSize);
@@ -89,10 +84,6 @@ describe('GetShortenUrlsUseCase', () => {
     const totalCount = 20;
     const pageNumber = 2;
     const pageSize = 5;
-    const query = GetShortenUrlsQuery.builder()
-      .set('pageNumber', pageNumber)
-      .set('pageSize', pageSize)
-      .build();
 
     const findShortenUrlsMock = jest
       .spyOn(queryShortenUrlPort, 'findShortenUrls')
@@ -115,7 +106,9 @@ describe('GetShortenUrlsUseCase', () => {
     // when
     const tryCount = 10;
     const results = await Promise.all(
-      Array.from({ length: tryCount }, () => useCase.execute(query)),
+      Array.from({ length: tryCount }, () =>
+        useCase.execute(pageNumber, pageSize),
+      ),
     );
 
     // then

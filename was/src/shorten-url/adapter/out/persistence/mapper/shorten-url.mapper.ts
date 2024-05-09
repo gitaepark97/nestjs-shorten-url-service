@@ -1,5 +1,5 @@
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
-import { ShortenUrlEntity } from './shorten-url.entity';
+import { ShortenUrlEntity } from '../entity/shorten-url.entity';
 
 export abstract class ShortenUrlMapper {
   static entityToDomain(entity: ShortenUrlEntity): ShortenUrl {

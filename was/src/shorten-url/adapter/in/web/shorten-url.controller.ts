@@ -19,14 +19,12 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { generateErrorExample } from 'src/common/open-api/swagger';
 import { ResponseValidationInterceptor } from 'src/common/validation/response-validation.interceptor';
 import { CreateShortenUrlCommand } from 'src/shorten-url/application/port/in/command/create-shorten-url.command';
 import { CreateShortenUrlUseCase } from 'src/shorten-url/application/port/in/create-shorten-url.use-case';
 import { GetOriginalUrlUseCase } from 'src/shorten-url/application/port/in/get-original-url.use-case';
 import { GetShortenUrlsUseCase } from 'src/shorten-url/application/port/in/get-shorten-urls.use-case';
-import { GetOriginalUrlQuery } from 'src/shorten-url/application/port/in/query/get-original-url.query';
-import { GetShortenUrlsQuery } from 'src/shorten-url/application/port/in/query/get-shorten-urls.query';
-import { generateErrorExample } from 'src/util/swagger.util';
 import { CreateShortenUrlRequestBody } from './request/create-shorten-url.request';
 import { GetShortenUrlsRequestQuery } from './request/get-shorten-urls.request';
 import { RedirectToOriginalUrlRequestPath } from './request/redirect-to-original-url.request';
@@ -34,7 +32,7 @@ import { ShortenUrlKeyResponse } from './response/shorten-url-key.response';
 import { ShortenUrlsResponse } from './response/shorten-urls.reponse';
 
 @ApiTags('단축 URL')
-@Controller()
+@Controller('shorten-urls')
 export class ShortenUrlController {
   constructor(
     private readonly createShortenUrlUseCase: CreateShortenUrlUseCase,
@@ -75,7 +73,7 @@ export class ShortenUrlController {
       },
     },
   })
-  @Post('shorten-urls')
+  @Post()
   @UseInterceptors(new ResponseValidationInterceptor(ShortenUrlKeyResponse))
   async createShortenUrl(
     @Body() body: CreateShortenUrlRequestBody,
@@ -135,14 +133,12 @@ export class ShortenUrlController {
       },
     },
   })
-  @Get('shorten-urls/:shortenUrlKey')
+  @Get(':shortenUrlKey')
   @Redirect()
   async redirectToOriginalUrl(@Param() path: RedirectToOriginalUrlRequestPath) {
-    const query = GetOriginalUrlQuery.builder()
-      .set('shortenUrlKey', path.shortenUrlKey)
-      .build();
-
-    const originalUrl = await this.getOriginalUrlUseCase.execute(query);
+    const originalUrl = await this.getOriginalUrlUseCase.execute(
+      path.shortenUrlKey,
+    );
     return { url: originalUrl };
   }
 
@@ -186,15 +182,11 @@ export class ShortenUrlController {
       },
     },
   })
-  @Get('shorten-urls')
+  @Get()
   @UseInterceptors(new ResponseValidationInterceptor(ShortenUrlsResponse))
   async getShortenUrls(
-    @Query() requestQuery: GetShortenUrlsRequestQuery,
+    @Query() query: GetShortenUrlsRequestQuery,
   ): Promise<ShortenUrlsResponse> {
-    const query = GetShortenUrlsQuery.builder()
-      .set('pageNumber', requestQuery.pageNumber)
-      .set('pageSize', requestQuery.pageSize)
-      .build();
-    return this.getShortenUrlsUseCase.execute(query);
+    return this.getShortenUrlsUseCase.execute(query.pageNumber, query.pageSize);
   }
 }

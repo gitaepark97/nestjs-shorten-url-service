@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
 import { CreateShortenUrlCommand } from '../port/in/command/create-shorten-url.command';
 import { CreateShortenUrlUseCase } from '../port/in/create-shorten-url.use-case';
+import { CommandCountPort } from '../port/out/command-count.port';
 import { CommandShortenUrlPort } from '../port/out/command-shorten-url.port';
-import { GetCountPort } from '../port/out/get-count.port';
 
 @Injectable()
 export class CreateShortenUrlService implements CreateShortenUrlUseCase {
   constructor(
-    private readonly getCountPort: GetCountPort,
+    private readonly commandCountPort: CommandCountPort,
     private readonly commandShortenUrlPort: CommandShortenUrlPort,
   ) {}
 
@@ -30,8 +30,8 @@ export class CreateShortenUrlService implements CreateShortenUrlUseCase {
    * 단축 URL 키 생성 함수
    */
   private async generateShortenUrlKey(): Promise<string> {
-    // count 조회
-    const count = await this.getCountPort.execute();
+    // count 조회 및 증가
+    const count = await this.commandCountPort.findCountAndIncrease();
 
     // count를 base64url로 인코딩
     return this.numberToBase64Url(count);

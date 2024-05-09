@@ -1,8 +1,8 @@
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
-import { GetShortenUrlsQuery } from './query/get-shorten-urls.query';
 
 export abstract class GetShortenUrlsUseCase {
   abstract execute(
-    query: GetShortenUrlsQuery,
+    pageNumber: number,
+    pageSize: number,
   ): Promise<{ shortenUrls: ShortenUrl[]; totalCount: number }>;
 }
