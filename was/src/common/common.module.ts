@@ -1,9 +1,9 @@
-import { Logger, Module } from '@nestjs/common';
-import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { TerminusModule } from '@nestjs/terminus';
 import { HttpExceptionFilter } from './exception/http-exception.filter';
 import { HealthController } from './health/health.controller';
-import { LoggingInterceptor } from './logging/logging.interceptor';
+import { LoggingMiddleware } from './logging/logging.middleware';
 import { RequestValidationPipe } from './validation/request-validatation.pipe';
 
 @Module({
@@ -12,8 +12,11 @@ import { RequestValidationPipe } from './validation/request-validatation.pipe';
   providers: [
     Logger,
     { provide: APP_PIPE, useClass: RequestValidationPipe },
-    { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
   ],
 })
-export class CommonModule {}
+export class CommonModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): any {
+    consumer.apply(LoggingMiddleware).forRoutes('*');
+  }
+}
