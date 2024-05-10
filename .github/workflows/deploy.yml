@@ -84,5 +84,5 @@ jobs:
         run: |
           docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker container stop was && docker container rm was
-          docker run -d --name was -p 8080:8080 -v /logs:/app/logs --restart unless-stopped $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker run -d --name was -p ${{ secrets.PORT }}:${{ secrets.PORT }} -v /logs:/app/logs --restart unless-stopped $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker system prune -af && docker volume prune -f
