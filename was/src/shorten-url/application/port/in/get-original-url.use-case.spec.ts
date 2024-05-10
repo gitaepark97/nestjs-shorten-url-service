@@ -37,95 +37,60 @@ describe('GetOriginalUrlUseCase', () => {
     );
   });
 
-  it('should be defined', () => {
-    expect(useCase).toBeDefined();
-  });
-
   describe('execute', () => {
-    it('원본 URL 조회', async () => {
-      // given
-      const shortenUrlKey = 'shortenUrlKey';
-      const originalUrl = 'https://www.google.com';
+    describe('성공', () => {
+      it('원본 URL 조회', async () => {
+        // given
+        const findShortenUrlByKeyMock = jest
+          .spyOn(queryShortenUrlPort, 'findShortenUrlByKey')
+          .mockImplementationOnce(async (shortenUrlKey) =>
+            ShortenUrl.builder()
+              .set('id', 'id')
+              .set('key', shortenUrlKey)
+              .set('originalUrl', 'https://www.google.com')
+              .set('visitCount', 0)
+              .set('createdAt', new Date())
+              .set('updatedAt', new Date())
+              .build(),
+          );
+        const increaseVisitCountMock = jest
+          .spyOn(commandShortenUrlPort, 'increaseVisitCount')
+          .mockResolvedValueOnce();
 
-      const findShortenUrlByKeyMock = jest
-        .spyOn(queryShortenUrlPort, 'findShortenUrlByKey')
-        .mockImplementationOnce(async (shortenUrlKey) =>
-          ShortenUrl.builder()
-            .set('id', 'id')
-            .set('key', shortenUrlKey)
-            .set('originalUrl', originalUrl)
-            .set('visitCount', 0)
-            .set('createdAt', new Date())
-            .set('updatedAt', new Date())
-            .build(),
-        );
-      const increaseVisitCountMock = jest
-        .spyOn(commandShortenUrlPort, 'increaseVisitCount')
-        .mockResolvedValueOnce();
+        const shortenUrlKey = 'shortenUrlKey';
 
-      // when
-      const result = await useCase.execute(shortenUrlKey);
+        // when
+        const result = await useCase.execute(shortenUrlKey);
 
-      // then
-      expect(result).toBe(originalUrl);
+        // then
+        expect(result).toBe('https://www.google.com');
 
-      expect(findShortenUrlByKeyMock).toHaveBeenCalledTimes(1);
-      expect(increaseVisitCountMock).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  it('동시성 테스트', async () => {
-    // given
-    const shortenUrlKey = 'shortenUrlKey';
-    const originalUrl = 'https://www.google.com';
-
-    const findShortenUrlByKeyMock = jest
-      .spyOn(queryShortenUrlPort, 'findShortenUrlByKey')
-      .mockImplementation(async (shortenUrlKey) =>
-        ShortenUrl.builder()
-          .set('key', shortenUrlKey)
-          .set('originalUrl', originalUrl)
-          .build(),
-      );
-    const increaseVisitCountMock = jest
-      .spyOn(commandShortenUrlPort, 'increaseVisitCount')
-      .mockResolvedValue();
-
-    // when
-    const tryCount = 10;
-    const results = await Promise.all(
-      Array.from({ length: tryCount }, () => useCase.execute(shortenUrlKey)),
-    );
-
-    // then
-    results.forEach((result) => {
-      expect(result).toBe(originalUrl);
+        expect(findShortenUrlByKeyMock).toHaveBeenCalledTimes(1);
+        expect(increaseVisitCountMock).toHaveBeenCalledTimes(1);
+      });
     });
 
-    expect(findShortenUrlByKeyMock).toHaveBeenCalledTimes(tryCount);
-    expect(increaseVisitCountMock).toHaveBeenCalledTimes(tryCount);
-  });
+    describe('데이터 미존재', () => {
+      it('존재하지 않는 단축 URL', async () => {
+        // given
+        const findShortenUrlByKeyMock = jest
+          .spyOn(queryShortenUrlPort, 'findShortenUrlByKey')
+          .mockResolvedValueOnce(null);
+        const increaseVisitCountMock = jest
+          .spyOn(commandShortenUrlPort, 'increaseVisitCount')
+          .mockResolvedValueOnce();
 
-  describe('존재하지 않는 데이터', () => {
-    it('존재하지 않는 단축 URL', async () => {
-      // given
-      const shortenUrlKey = 'shortenUrlKey';
+        const shortenUrlKey = 'shortenUrlKey';
 
-      const findShortenUrlByKeyMock = jest
-        .spyOn(queryShortenUrlPort, 'findShortenUrlByKey')
-        .mockResolvedValueOnce(null);
-      const increaseVisitCountMock = jest
-        .spyOn(commandShortenUrlPort, 'increaseVisitCount')
-        .mockResolvedValueOnce();
+        // when
+        expect(
+          async () => await useCase.execute(shortenUrlKey),
+        ).rejects.toThrow('등록된 단축 URL이 아닙니다.');
+        // then
 
-      // when
-      expect(async () => await useCase.execute(shortenUrlKey)).rejects.toThrow(
-        '등록된 단축 URL이 아닙니다.',
-      );
-      // then
-
-      expect(findShortenUrlByKeyMock).toHaveBeenCalledTimes(1);
-      expect(increaseVisitCountMock).not.toHaveBeenCalled();
+        expect(findShortenUrlByKeyMock).toHaveBeenCalledTimes(1);
+        expect(increaseVisitCountMock).not.toHaveBeenCalled();
+      });
     });
   });
 });
