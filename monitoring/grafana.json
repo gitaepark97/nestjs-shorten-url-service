@@ -211,38 +211,38 @@
         {
           "datasource": "${DS_PROMETHEUS}",
           "editorMode": "code",
-          "expr": "sum by (method, le) (increase(http_request_duration_ms_count{statusCode=~\"2.*\"}[1m]))",
+          "expr": "sum by (le) (increase(http_request_duration_ms_count{statusCode=~\"2.*\"}[1m]))",
           "instant": false,
-          "legendFormat": "2xx {{method}}",
+          "legendFormat": "2xx",
           "range": true,
           "refId": "A"
         },
         {
           "datasource": "${DS_PROMETHEUS}",
           "editorMode": "code",
-          "expr": "sum by (method, le) (increase(http_request_duration_ms_count{statusCode=~\"3.*\"}[1m]))",
+          "expr": "sum by (le) (increase(http_request_duration_ms_count{statusCode=~\"3.*\"}[1m]))",
           "instant": false,
-          "legendFormat": "3xx {{method}}",
+          "legendFormat": "3xx",
           "range": true,
           "refId": "B"
         },
         {
           "datasource": "${DS_PROMETHEUS}",
           "editorMode": "code",
-          "expr": "sum by (method, le) (increase(http_request_duration_ms_count{statusCode=~\"4.*\"}[1m]))",
+          "expr": "sum by (le) (increase(http_request_duration_ms_count{statusCode=~\"4.*\"}[1m]))",
           "hide": false,
           "instant": false,
-          "legendFormat": "4xx {{method}}",
+          "legendFormat": "4xx",
           "range": true,
           "refId": "C"
         },
         {
           "datasource": "${DS_PROMETHEUS}",
           "editorMode": "code",
-          "expr": "sum by (method, le) (increase(http_request_duration_ms_count{statusCode=~\"5.*\"}[1m]))",
+          "expr": "sum by (le) (increase(http_request_duration_ms_count{statusCode=~\"5.*\"}[1m]))",
           "hide": false,
           "instant": false,
-          "legendFormat": "5xx {{method}}",
+          "legendFormat": "5xx",
           "range": true,
           "refId": "D"
         }
