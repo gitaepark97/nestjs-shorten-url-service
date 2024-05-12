@@ -16,7 +16,7 @@ export const options = {
   ],
 };
 
-const BASE_URL = "http://localhost:8000/api/v1";
+const BASE_URL = "https://shorten-url-service.studiohugo.net/api/v1";
 
 export default function () {
   const postUrl = `${BASE_URL}/shorten-urls`;
