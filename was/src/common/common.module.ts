@@ -2,6 +2,7 @@ import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { TerminusModule } from '@nestjs/terminus';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+import { Environment } from 'src/config/env.validation';
 import { HttpExceptionFilter } from './exception/http-exception.filter';
 import { HealthController } from './health/health.controller';
 import { LoggingMiddleware } from './logging/logging.middleware';
@@ -19,7 +20,9 @@ import { RequestValidationPipe } from './validation/request-validatation.pipe';
 })
 export class CommonModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(LoggingMiddleware).forRoutes('*');
-    consumer.apply(MetricMiddleware).exclude('/metrics').forRoutes('*');
+    if (process.env.NODE_ENV != Environment.Test) {
+      consumer.apply(LoggingMiddleware).forRoutes('*');
+      consumer.apply(MetricMiddleware).exclude('/metrics').forRoutes('*');
+    }
   }
 }
