@@ -20,12 +20,50 @@ services:
       context: ./was
       dockerfile: Dockerfile.development
     ports:
-      - 8080:8080
+      - 8000:8000
     volumes:
       - ./was:/app
       - /app/node_modules
     depends_on:
       - db
 
+  loki:
+    image: grafana/loki
+    container_name: loki
+    volumes:
+      - ./monitoring/loki-config.yml:/etc/loki/config.yml
+    command: -config.file=/etc/loki/config.yml
+
+  promtail:
+    image: grafana/promtail
+    container_name: promtail
+    volumes:
+      - ./was/logs:/logs
+      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+
+  prometheus:
+    image: prom/prometheus
+    user: root
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus-config.yml:/etc/prometheus/config.yml
+      - prometheus_data:/prometheus/data
+    command:
+      - "--web.enable-lifecycle"
+      - "--config.file=/etc/prometheus/config.yml"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+
 volumes:
   db_data:
+  prometheus_data:
+  grafana_data:

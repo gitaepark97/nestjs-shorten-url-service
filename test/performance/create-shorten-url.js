@@ -5,7 +5,7 @@ export const options = {
   duration: "1s",
 };
 
-const BASE_URL = "https://shorten-url-service.studiohugo.net/api/v1";
+const BASE_URL = "http://localhost:8000/api/v1";
 
 export default function () {
   const url = `${BASE_URL}/shorten-urls`;
