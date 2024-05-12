@@ -38,6 +38,9 @@ const transports =
             }),
           ),
         }),
+        new winstonDaily(dailyOption('info')),
+        new winstonDaily(dailyOption('warn')),
+        new winstonDaily(dailyOption('error')),
       ];
 
 export const winstonLogger = WinstonModule.createLogger({
