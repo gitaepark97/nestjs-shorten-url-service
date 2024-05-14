@@ -14,6 +14,14 @@ services:
       - ./db/initdb.d:/docker-entrypoint-initdb.d:ro
       - db_data:/data/db
 
+  mq:
+    image: redis
+    container_name: mq
+    volumes:
+      - mq_data:/data
+      - ./mq/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+
   was:
     container_name: was
     build:
@@ -65,5 +73,6 @@ services:
 
 volumes:
   db_data:
+  mq_data:
   # prometheus_data:
   # grafana_data:
