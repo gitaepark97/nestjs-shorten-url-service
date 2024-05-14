@@ -1,62 +1,49 @@
-import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
+import { BullModule, getQueueToken } from '@nestjs/bull';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Connection } from 'mongoose';
+import { Queue } from 'bull';
 import { ConfigModule } from 'src/config/config.module';
-import {
-  ShortenUrlEntity,
-  ShortenUrlSchema,
-} from 'src/shorten-url/adapter/out/persistence/entity/shorten-url.entity';
-import { ShortenUrlAdapter } from 'src/shorten-url/adapter/out/persistence/shorten-url.adapter';
+import { ShortenUrlProducer } from 'src/shorten-url/adapter/out/mq/shorten-url.producer';
 import { UpdateShortenUrlPort } from './update-shorten-url.port';
 
 describe('UpdateShortenUrlPort', () => {
   let port: UpdateShortenUrlPort;
-  let db: Connection;
+  let queue: Queue;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         ConfigModule,
-        MongooseModule.forFeature([
-          { name: ShortenUrlEntity.name, schema: ShortenUrlSchema },
-        ]),
+        BullModule.registerQueue({ name: 'shortenUrlQueue' }),
       ],
       providers: [
         {
           provide: UpdateShortenUrlPort,
-          useClass: ShortenUrlAdapter,
+          useClass: ShortenUrlProducer,
         },
       ],
     }).compile();
 
     port = module.get<UpdateShortenUrlPort>(UpdateShortenUrlPort);
-    db = module.get<Connection>(getConnectionToken());
+    queue = module.get<Queue>(getQueueToken('shortenUrlQueue'));
   });
 
   afterEach(async () => {
-    await db.collection('shorten_urls').drop();
+    await queue.empty();
   });
 
-  describe('increaseVisitCount', () => {
+  describe('increaseVisitCountByKey', () => {
     describe('성공', () => {
       it('단축 URL 조회 수 증가', async () => {
         // given
-        await db.collection('shorten_urls').insertOne({
-          key: 'shortenUrlKey',
-          originalUrl: 'https://www.google.com',
-          visitCount: 0,
-        });
-
         const shortenUrlKey = 'shortenUrlKey';
 
         // when
         await port.increaseVisitCountByKey(shortenUrlKey);
 
         // then
-        const savedShortenUrl = await db
-          .collection('shorten_urls')
-          .findOne({ key: shortenUrlKey });
-        expect(savedShortenUrl!.visitCount).toBe(1);
+        const jobs = await queue.getJobs(['waiting']);
+        expect(jobs).toHaveLength(1);
+        expect(jobs[0].data).toEqual(shortenUrlKey);
       });
     });
   });

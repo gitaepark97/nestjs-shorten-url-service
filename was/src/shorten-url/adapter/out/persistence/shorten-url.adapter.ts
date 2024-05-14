@@ -3,14 +3,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateShortenUrlPort } from 'src/shorten-url/application/port/out/create-shorten-url.port';
 import { LoadShortenUrlPort } from 'src/shorten-url/application/port/out/load-shorten-url.port';
-import { UpdateShortenUrlPort } from 'src/shorten-url/application/port/out/update-shorten-url.port';
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
 import { ShortenUrlEntity } from './entity/shorten-url.entity';
 import { ShortenUrlMapper } from './mapper/shorten-url.mapper';
 
+export abstract class ShortenUrlRepository {
+  abstract increaseVisitCountByKey(shortenUrlKey: string): Promise<void>;
+}
+
 @Injectable()
 export class ShortenUrlAdapter
-  implements LoadShortenUrlPort, CreateShortenUrlPort, UpdateShortenUrlPort
+  implements LoadShortenUrlPort, CreateShortenUrlPort, ShortenUrlRepository
 {
   constructor(
     @InjectModel(ShortenUrlEntity.name)

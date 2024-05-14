@@ -1,7 +1,10 @@
+import { BullModule } from '@nestjs/bull';
 import { Module, Provider } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ShortenUrlController } from './adapter/in/web/shorten-url.controller';
 import { ShortenUrlCacheAdapter } from './adapter/out/memory/shorten-url-cache.adapter';
+import { ShortenUrlConsumer } from './adapter/out/mq/shorten-url.consumer';
+import { ShortenUrlProducer } from './adapter/out/mq/shorten-url.producer';
 import { CountAdapter } from './adapter/out/persistence/count.adapter';
 import {
   CountEntity,
@@ -11,7 +14,10 @@ import {
   ShortenUrlEntity,
   ShortenUrlSchema,
 } from './adapter/out/persistence/entity/shorten-url.entity';
-import { ShortenUrlAdapter } from './adapter/out/persistence/shorten-url.adapter';
+import {
+  ShortenUrlAdapter,
+  ShortenUrlRepository,
+} from './adapter/out/persistence/shorten-url.adapter';
 import { CreateShortenUrlUseCase } from './application/port/in/create-shorten-url.use-case';
 import { GetOriginalUrlUseCase } from './application/port/in/get-original-url.use-case';
 import { GetShortenUrlsUseCase } from './application/port/in/get-shorten-urls.use-case';
@@ -32,7 +38,7 @@ const ports: Provider[] = [
     provide: CreateShortenUrlPort,
     useClass: ShortenUrlAdapter,
   },
-  { provide: UpdateShortenUrlPort, useClass: ShortenUrlAdapter },
+  { provide: UpdateShortenUrlPort, useClass: ShortenUrlProducer },
   { provide: LoadShortenUrlCachePort, useClass: ShortenUrlCacheAdapter },
   { provide: CreateShortenUrlCachePort, useClass: ShortenUrlCacheAdapter },
 ];
@@ -49,8 +55,14 @@ const useCases: Provider[] = [
       { name: ShortenUrlEntity.name, schema: ShortenUrlSchema },
       { name: CountEntity.name, schema: CountSchema },
     ]),
+    BullModule.registerQueue({ name: 'shortenUrlQueue' }),
   ],
   controllers: [ShortenUrlController],
-  providers: [...ports, ...useCases],
+  providers: [
+    { provide: ShortenUrlRepository, useClass: ShortenUrlAdapter },
+    ShortenUrlConsumer,
+    ...ports,
+    ...useCases,
+  ],
 })
 export class ShortenUrlModule {}
