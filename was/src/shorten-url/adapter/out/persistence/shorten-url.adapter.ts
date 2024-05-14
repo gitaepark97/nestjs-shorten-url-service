@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CommandShortenUrlPort } from 'src/shorten-url/application/port/out/command-shorten-url.port';
-import { QueryShortenUrlPort } from 'src/shorten-url/application/port/out/qeury-shorten-url.port';
+import { CreateShortenUrlPort } from 'src/shorten-url/application/port/out/create-shorten-url.port';
+import { LoadShortenUrlPort } from 'src/shorten-url/application/port/out/load-shorten-url.port';
+import { UpdateShortenUrlPort } from 'src/shorten-url/application/port/out/update-shorten-url.port';
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
 import { ShortenUrlEntity } from './entity/shorten-url.entity';
 import { ShortenUrlMapper } from './mapper/shorten-url.mapper';
 
 @Injectable()
 export class ShortenUrlAdapter
-  implements QueryShortenUrlPort, CommandShortenUrlPort
+  implements LoadShortenUrlPort, CreateShortenUrlPort, UpdateShortenUrlPort
 {
   constructor(
     @InjectModel(ShortenUrlEntity.name)
@@ -37,15 +38,15 @@ export class ShortenUrlAdapter
     return this.shortenUrlModel.countDocuments();
   }
 
-  async save(shortenUrl: ShortenUrl): Promise<ShortenUrl> {
+  async createShortenUrl(shortenUrl: ShortenUrl): Promise<ShortenUrl> {
     const shortenUrlEntity = new this.shortenUrlModel(shortenUrl);
     await shortenUrlEntity.save();
     return ShortenUrlMapper.entityToDomain(shortenUrlEntity);
   }
 
-  async increaseVisitCount(shortenUrlId: string): Promise<void> {
+  async increaseVisitCountByKey(shortenUrlKey: string): Promise<void> {
     await this.shortenUrlModel.updateOne(
-      { _id: shortenUrlId },
+      { key: shortenUrlKey },
       { $inc: { visitCount: 1 } },
     );
   }

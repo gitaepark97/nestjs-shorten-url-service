@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
 import { CreateShortenUrlCommand } from '../port/in/command/create-shorten-url.command';
 import { CreateShortenUrlUseCase } from '../port/in/create-shorten-url.use-case';
-import { CommandCountPort } from '../port/out/command-count.port';
-import { CommandShortenUrlPort } from '../port/out/command-shorten-url.port';
+import { CreateShortenUrlPort } from '../port/out/create-shorten-url.port';
+import { LoadAndUpdateCountPort } from '../port/out/load-and-update-count.port';
 
 @Injectable()
 export class CreateShortenUrlService implements CreateShortenUrlUseCase {
   constructor(
-    private readonly commandCountPort: CommandCountPort,
-    private readonly commandShortenUrlPort: CommandShortenUrlPort,
+    private readonly loadAndUpdateCountPort: LoadAndUpdateCountPort,
+    private readonly createShortenUrlPort: CreateShortenUrlPort,
   ) {}
 
   async execute(command: CreateShortenUrlCommand): Promise<ShortenUrl> {
@@ -23,7 +23,7 @@ export class CreateShortenUrlService implements CreateShortenUrlUseCase {
       .build();
 
     // 단축 URL 저장
-    return this.commandShortenUrlPort.save(shortenUrl);
+    return this.createShortenUrlPort.createShortenUrl(shortenUrl);
   }
 
   /**
@@ -31,7 +31,7 @@ export class CreateShortenUrlService implements CreateShortenUrlUseCase {
    */
   private async generateShortenUrlKey(): Promise<string> {
     // count 조회 및 증가
-    const count = await this.commandCountPort.findCountAndIncrease();
+    const count = await this.loadAndUpdateCountPort.findCountAndIncrease();
 
     // count를 base64url로 인코딩
     return this.numberToBase64Url(count);

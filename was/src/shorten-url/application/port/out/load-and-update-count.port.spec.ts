@@ -7,11 +7,11 @@ import {
   CountEntity,
   CountSchema,
 } from 'src/shorten-url/adapter/out/persistence/entity/count.entity';
-import { CommandCountPort } from './command-count.port';
+import { LoadAndUpdateCountPort } from './load-and-update-count.port';
 
-describe('CommandCountPort', () => {
-  let port: CommandCountPort;
-  let mongooseConnection: Connection;
+describe('LoadAndUpdateCountPort', () => {
+  let port: LoadAndUpdateCountPort;
+  let db: Connection;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -23,21 +23,21 @@ describe('CommandCountPort', () => {
       ],
       providers: [
         {
-          provide: CommandCountPort,
+          provide: LoadAndUpdateCountPort,
           useClass: CountAdapter,
         },
       ],
     }).compile();
 
-    port = module.get<CommandCountPort>(CommandCountPort);
-    mongooseConnection = module.get<Connection>(getConnectionToken());
-    await mongooseConnection.createCollection('counts');
-    await mongooseConnection.collection('counts').insertOne({ current: 0 });
+    port = module.get<LoadAndUpdateCountPort>(LoadAndUpdateCountPort);
+    db = module.get<Connection>(getConnectionToken());
+    await db.createCollection('counts');
+    await db.collection('counts').insertOne({ current: 0 });
   });
 
   afterEach(async () => {
-    await mongooseConnection.collection('counts').drop();
-    await mongooseConnection.collection('shorten_urls').drop();
+    await db.collection('counts').drop();
+    await db.collection('shorten_urls').drop();
   });
 
   describe('findCountAndIncrease', () => {

@@ -1,7 +1,6 @@
 import { Builder } from 'src/common/util/builder.util';
 
 export class ShortenUrl {
-  readonly id: string;
   readonly key: string;
   readonly originalUrl: string;
   readonly visitCount: number = 0;

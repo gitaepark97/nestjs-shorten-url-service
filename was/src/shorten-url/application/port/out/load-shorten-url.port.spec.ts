@@ -7,11 +7,11 @@ import {
   ShortenUrlSchema,
 } from 'src/shorten-url/adapter/out/persistence/entity/shorten-url.entity';
 import { ShortenUrlAdapter } from 'src/shorten-url/adapter/out/persistence/shorten-url.adapter';
-import { QueryShortenUrlPort } from './qeury-shorten-url.port';
+import { LoadShortenUrlPort } from './load-shorten-url.port';
 
-describe('QueryShortenUrlPort', () => {
-  let port: QueryShortenUrlPort;
-  let mongooseConnection: Connection;
+describe('LoadShortenUrlPort', () => {
+  let port: LoadShortenUrlPort;
+  let db: Connection;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -23,39 +23,38 @@ describe('QueryShortenUrlPort', () => {
       ],
       providers: [
         {
-          provide: QueryShortenUrlPort,
+          provide: LoadShortenUrlPort,
           useClass: ShortenUrlAdapter,
         },
       ],
     }).compile();
 
-    port = module.get<QueryShortenUrlPort>(QueryShortenUrlPort);
-    mongooseConnection = module.get<Connection>(getConnectionToken());
+    port = module.get<LoadShortenUrlPort>(LoadShortenUrlPort);
+    db = module.get<Connection>(getConnectionToken());
   });
 
   afterEach(async () => {
-    await mongooseConnection.collection('shorten_urls').drop();
+    await db.collection('shorten_urls').drop();
   });
 
   describe('findShortenUrlByKey', () => {
     describe('성공', () => {
       it('key에 해당하는 단축 URL 존재', async () => {
         // given
-        const shortenUrlKey = 'shortenUrlKey';
-        const originalUrl = 'https://www.google.com';
-        await mongooseConnection.collection('shorten_urls').insertOne({
-          key: shortenUrlKey,
-          originalUrl: originalUrl,
+        await db.collection('shorten_urls').insertOne({
+          key: 'shortenUrlKey',
+          originalUrl: 'https://www.google.com',
           visitCount: 0,
         });
+
+        const shortenUrlKey = 'shortenUrlKey';
 
         // when
         const result = await port.findShortenUrlByKey(shortenUrlKey);
 
         // then
-        expect(result!.id).toEqual(expect.any(String));
         expect(result!.key).toBe(shortenUrlKey);
-        expect(result!.originalUrl).toBe(originalUrl);
+        expect(result!.originalUrl).toBe('https://www.google.com');
         expect(result!.visitCount).toEqual(expect.any(Number));
         expect(result!.createdAt).toEqual(expect.any(Date));
         expect(result!.updatedAt).toEqual(expect.any(Date));
@@ -79,17 +78,16 @@ describe('QueryShortenUrlPort', () => {
       it('단축 URL 검색', async () => {
         // given
         const totalCount = 10;
-        const originalUrl = 'https://www.google.com';
-
         await Promise.all(
           Array.from({ length: totalCount }, (_, idx) =>
-            mongooseConnection.collection('shorten_urls').insertOne({
+            db.collection('shorten_urls').insertOne({
               key: `shortenUrlKey${idx}`,
-              originalUrl: originalUrl,
+              originalUrl: 'https://www.google.com',
               visitCount: 0,
             }),
           ),
         );
+
         const skip = 0;
         const limit = 5;
 
@@ -101,8 +99,7 @@ describe('QueryShortenUrlPort', () => {
         const shortenUrlMap = new Map();
         result.forEach((shortenUrl) => {
           shortenUrlMap.set(shortenUrl.key, true);
-          expect(shortenUrl.id).toEqual(expect.any(String));
-          expect(shortenUrl.originalUrl).toBe(originalUrl);
+          expect(shortenUrl.originalUrl).toBe('https://www.google.com');
           expect(shortenUrl.visitCount).toEqual(expect.any(Number));
           expect(shortenUrl.createdAt).toEqual(expect.any(Date));
           expect(shortenUrl.updatedAt).toEqual(expect.any(Date));
@@ -113,17 +110,16 @@ describe('QueryShortenUrlPort', () => {
       it('skip 작동', async () => {
         // given
         const totalCount = 10;
-        const originalUrl = 'https://www.google.com';
-
         await Promise.all(
           Array.from({ length: totalCount }, (_, idx) =>
-            mongooseConnection.collection('shorten_urls').insertOne({
+            db.collection('shorten_urls').insertOne({
               key: `shortenUrlKey${idx}`,
-              originalUrl: originalUrl,
+              originalUrl: 'https://www.google.com',
               visitCount: 0,
             }),
           ),
         );
+
         const skip1 = 0;
         const skip2 = 5;
         const limit1 = 10;
@@ -150,7 +146,7 @@ describe('QueryShortenUrlPort', () => {
 
         await Promise.all(
           Array.from({ length: totalCount }, (_, idx) =>
-            mongooseConnection.collection('shorten_urls').insertOne({
+            db.collection('shorten_urls').insertOne({
               key: `shortenUrlKey${idx}`,
               originalUrl: originalUrl,
               visitCount: 0,

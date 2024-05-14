@@ -14,20 +14,22 @@ import { ShortenUrlAdapter } from './adapter/out/persistence/shorten-url.adapter
 import { CreateShortenUrlUseCase } from './application/port/in/create-shorten-url.use-case';
 import { GetOriginalUrlUseCase } from './application/port/in/get-original-url.use-case';
 import { GetShortenUrlsUseCase } from './application/port/in/get-shorten-urls.use-case';
-import { CommandCountPort } from './application/port/out/command-count.port';
-import { CommandShortenUrlPort } from './application/port/out/command-shorten-url.port';
-import { QueryShortenUrlPort } from './application/port/out/qeury-shorten-url.port';
+import { CreateShortenUrlPort } from './application/port/out/create-shorten-url.port';
+import { LoadAndUpdateCountPort } from './application/port/out/load-and-update-count.port';
+import { LoadShortenUrlPort } from './application/port/out/load-shorten-url.port';
+import { UpdateShortenUrlPort } from './application/port/out/update-shorten-url.port';
 import { CreateShortenUrlService } from './application/service/create-shorten-url.service';
 import { GetOriginalUrlService } from './application/service/get-original-url.service';
 import { GetShortenUrlsService } from './application/service/get-shorten-urls.service';
 
 const ports: Provider[] = [
-  { provide: CommandCountPort, useClass: CountAdapter },
+  { provide: LoadAndUpdateCountPort, useClass: CountAdapter },
   {
-    provide: CommandShortenUrlPort,
+    provide: CreateShortenUrlPort,
     useClass: ShortenUrlAdapter,
   },
-  { provide: QueryShortenUrlPort, useClass: ShortenUrlAdapter },
+  { provide: LoadShortenUrlPort, useClass: ShortenUrlAdapter },
+  { provide: UpdateShortenUrlPort, useClass: ShortenUrlAdapter },
 ];
 
 const useCases: Provider[] = [
