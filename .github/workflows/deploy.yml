@@ -21,6 +21,10 @@ jobs:
           MONGO_INITDB_DATABASE: test
         ports:
           - 27010:27017
+      mq:
+        image: redis
+        ports:
+          - 6370:6379
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v3
