@@ -334,7 +334,7 @@ describe('ShortenUrlController (e2e)', () => {
           expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
           expect(responseBody.statusCode).toBe(HttpStatus.BAD_REQUEST);
           expect(responseBody.timestamp).toEqual(expect.any(String));
-          expect(responseBody.path).toBe(`/shorten-urls`);
+          expect(responseBody.path).toBe('/shorten-urls');
           expect(responseBody.message).toBe('자연수를 입력하세요');
         });
 
@@ -351,9 +351,7 @@ describe('ShortenUrlController (e2e)', () => {
           expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
           expect(responseBody.statusCode).toBe(HttpStatus.BAD_REQUEST);
           expect(responseBody.timestamp).toEqual(expect.any(String));
-          expect(responseBody.path).toBe(
-            `/shorten-urls?pageNumber=${pageNumber}`,
-          );
+          expect(responseBody.path).toBe('/shorten-urls');
           expect(responseBody.message).toBe('자연수를 입력하세요');
         });
       });
@@ -373,9 +371,7 @@ describe('ShortenUrlController (e2e)', () => {
           expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
           expect(responseBody.statusCode).toBe(HttpStatus.BAD_REQUEST);
           expect(responseBody.timestamp).toEqual(expect.any(String));
-          expect(responseBody.path).toBe(
-            `/shorten-urls?pageNumber=${pageNumber}&pageSize=${pageSize}`,
-          );
+          expect(responseBody.path).toBe('/shorten-urls');
           expect(responseBody.message).toBe('자연수를 입력하세요');
         });
       });
