@@ -1,40 +1,41 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
 import { CreateShortenUrlService } from '../../service/create-shorten-url.service';
-import { CommandCountPort } from '../out/command-count.port';
-import { CommandShortenUrlPort } from '../out/command-shorten-url.port';
+import { CreateShortenUrlPort } from '../out/create-shorten-url.port';
+import { LoadAndUpdateCountPort } from '../out/load-and-update-count.port';
 import { CreateShortenUrlCommand } from './command/create-shorten-url.command';
 import { CreateShortenUrlUseCase } from './create-shorten-url.use-case';
 
 describe('CreateShortenUrlUseCase', () => {
   let useCase: CreateShortenUrlUseCase;
-  let commandCountPort: CommandCountPort;
-  let commandShortenUrlPort: CommandShortenUrlPort;
+  let loadAndUpdateCountPort: LoadAndUpdateCountPort;
+  let createShortenUrlPort: CreateShortenUrlPort;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: CreateShortenUrlUseCase, useClass: CreateShortenUrlService },
         {
-          provide: CommandCountPort,
+          provide: LoadAndUpdateCountPort,
           useValue: {
             findCountAndIncrease: jest.fn(),
           },
         },
         {
-          provide: CommandShortenUrlPort,
+          provide: CreateShortenUrlPort,
           useValue: {
-            save: jest.fn(),
+            createShortenUrl: jest.fn(),
           },
         },
       ],
     }).compile();
 
     useCase = module.get<CreateShortenUrlUseCase>(CreateShortenUrlUseCase);
-    commandCountPort = module.get<CommandCountPort>(CommandCountPort);
-    commandShortenUrlPort = module.get<CommandShortenUrlPort>(
-      CommandShortenUrlPort,
+    loadAndUpdateCountPort = module.get<LoadAndUpdateCountPort>(
+      LoadAndUpdateCountPort,
     );
+    createShortenUrlPort =
+      module.get<CreateShortenUrlPort>(CreateShortenUrlPort);
   });
 
   describe('execute', () => {
@@ -42,13 +43,12 @@ describe('CreateShortenUrlUseCase', () => {
       it('단축 URL 생성', async () => {
         // given
         const executeMock = jest
-          .spyOn(commandCountPort, 'findCountAndIncrease')
+          .spyOn(loadAndUpdateCountPort, 'findCountAndIncrease')
           .mockResolvedValueOnce(0);
         const saveMock = jest
-          .spyOn(commandShortenUrlPort, 'save')
+          .spyOn(createShortenUrlPort, 'createShortenUrl')
           .mockImplementationOnce(async (shortenUrl) =>
             ShortenUrl.builder()
-              .set('id', `id`)
               .set('key', shortenUrl.key)
               .set('originalUrl', shortenUrl.originalUrl)
               .set('visitCount', shortenUrl.visitCount)
@@ -65,7 +65,6 @@ describe('CreateShortenUrlUseCase', () => {
         const result = await useCase.execute(command);
 
         // then
-        expect(result.id).toEqual(expect.any(String));
         expect(result.key).toEqual(expect.any(String));
         expect(result.key.length).toBe(7);
         expect(result.originalUrl).toBe(command.originalUrl);
@@ -81,16 +80,15 @@ describe('CreateShortenUrlUseCase', () => {
         // given
 
         const executeMock = jest
-          .spyOn(commandCountPort, 'findCountAndIncrease')
+          .spyOn(loadAndUpdateCountPort, 'findCountAndIncrease')
           .mockResolvedValueOnce(0);
         jest
-          .spyOn(commandCountPort, 'findCountAndIncrease')
+          .spyOn(loadAndUpdateCountPort, 'findCountAndIncrease')
           .mockResolvedValueOnce(1);
         const saveMock = jest
-          .spyOn(commandShortenUrlPort, 'save')
+          .spyOn(createShortenUrlPort, 'createShortenUrl')
           .mockImplementation(async (shortenUrl) =>
             ShortenUrl.builder()
-              .set('id', `id`)
               .set('key', shortenUrl.key)
               .set('originalUrl', shortenUrl.originalUrl)
               .set('visitCount', shortenUrl.visitCount)

@@ -1,6 +1,6 @@
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
 
-export abstract class QueryShortenUrlPort {
+export abstract class LoadShortenUrlPort {
   abstract findShortenUrlByKey(
     shortenUrlKey: string,
   ): Promise<ShortenUrl | null>;

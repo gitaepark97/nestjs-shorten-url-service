@@ -1,19 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
 import { GetShortenUrlsService } from '../../service/get-shorten-urls.service';
-import { QueryShortenUrlPort } from '../out/qeury-shorten-url.port';
+import { LoadShortenUrlPort } from '../out/load-shorten-url.port';
 import { GetShortenUrlsUseCase } from './get-shorten-urls.use-case';
 
 describe('GetShortenUrlsUseCase', () => {
   let useCase: GetShortenUrlsUseCase;
-  let queryShortenUrlPort: QueryShortenUrlPort;
+  let loadShortenUrlPort: LoadShortenUrlPort;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: GetShortenUrlsUseCase, useClass: GetShortenUrlsService },
         {
-          provide: QueryShortenUrlPort,
+          provide: LoadShortenUrlPort,
           useValue: {
             findShortenUrls: jest.fn(),
             count: jest.fn(),
@@ -23,32 +23,29 @@ describe('GetShortenUrlsUseCase', () => {
     }).compile();
 
     useCase = module.get<GetShortenUrlsUseCase>(GetShortenUrlsUseCase);
-    queryShortenUrlPort = module.get<QueryShortenUrlPort>(QueryShortenUrlPort);
+    loadShortenUrlPort = module.get<LoadShortenUrlPort>(LoadShortenUrlPort);
   });
 
   describe('execute', () => {
     describe('성공', () => {
       it('단축 URL 목록 조회', async () => {
         // given
-        const shortenUrlKey = 'shortenUrlKey';
-        const originalUrl = 'https://www.google.com';
+        const shortenUrl = ShortenUrl.builder()
+          .set('key', 'shortenUrlKey')
+          .set('originalUrl', 'https://www.google.com')
+          .set('visitCount', 0)
+          .set('createdAt', new Date())
+          .set('updatedAt', new Date())
+          .build();
+
         const totalCount = 20;
         const findShortenUrlsMock = jest
-          .spyOn(queryShortenUrlPort, 'findShortenUrls')
+          .spyOn(loadShortenUrlPort, 'findShortenUrls')
           .mockImplementationOnce(async (_, limit) =>
-            Array.from({ length: limit }, () =>
-              ShortenUrl.builder()
-                .set('id', 'id')
-                .set('key', shortenUrlKey)
-                .set('originalUrl', originalUrl)
-                .set('visitCount', 0)
-                .set('createdAt', new Date())
-                .set('updatedAt', new Date())
-                .build(),
-            ),
+            Array.from({ length: limit }, () => shortenUrl),
           );
         const countMock = jest
-          .spyOn(queryShortenUrlPort, 'count')
+          .spyOn(loadShortenUrlPort, 'count')
           .mockResolvedValueOnce(totalCount);
 
         const pageNumber = 2;
@@ -60,9 +57,8 @@ describe('GetShortenUrlsUseCase', () => {
         // then
         expect(result.shortenUrls.length).toBe(pageSize);
         result.shortenUrls.forEach((shortenUrl) => {
-          expect(shortenUrl.id).toEqual(expect.any(String));
-          expect(shortenUrl.key).toBe(shortenUrlKey);
-          expect(shortenUrl.originalUrl).toBe(originalUrl);
+          expect(shortenUrl.key).toBe('shortenUrlKey');
+          expect(shortenUrl.originalUrl).toBe('https://www.google.com');
           expect(shortenUrl.visitCount).toEqual(expect.any(Number));
           expect(shortenUrl.createdAt).toEqual(expect.any(Date));
           expect(shortenUrl.updatedAt).toEqual(expect.any(Date));

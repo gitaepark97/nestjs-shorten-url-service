@@ -4,7 +4,6 @@ import { ShortenUrlEntity } from '../entity/shorten-url.entity';
 export abstract class ShortenUrlMapper {
   static entityToDomain(entity: ShortenUrlEntity): ShortenUrl {
     return ShortenUrl.builder()
-      .set('id', String(entity._id))
       .set('key', entity.key)
       .set('originalUrl', entity.originalUrl)
       .set('visitCount', entity.visitCount)
