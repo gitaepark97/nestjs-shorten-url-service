@@ -22,6 +22,11 @@ services:
       - ./mq/redis.conf:/usr/local/etc/redis/redis.conf
     command: redis-server /usr/local/etc/redis/redis.conf
 
+  cache:
+    image: redis
+    container_name: cache
+    command: redis-server --requirepass dev_password
+
   was:
     container_name: was
     build:
@@ -34,6 +39,8 @@ services:
       - /app/node_modules
     depends_on:
       - db
+      - mq
+      - cache
 
   # loki:
   #   image: grafana/loki
