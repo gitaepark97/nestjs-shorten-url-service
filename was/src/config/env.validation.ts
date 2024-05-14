@@ -21,6 +21,9 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   MONGODB_URI: string;
+
+  @IsNumberString()
+  CACHE_TTL: string;
 }
 
 export const validate = (config: Record<string, unknown>) => {
