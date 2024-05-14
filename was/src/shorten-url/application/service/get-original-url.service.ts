@@ -19,6 +19,7 @@ export class GetOriginalUrlService implements GetOriginalUrlUseCase {
     // cache 검색
     let shortenUrl =
       await this.loadShortenUrlCachePort.findShortenUrlCache(shortenUrlKey);
+    if (shortenUrl) console.log('Cache Hit!');
     if (!shortenUrl) {
       // DB 검색
       shortenUrl =
