@@ -120,11 +120,11 @@
           "datasource": "${DS_PROMETHEUS}",
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "avg by(method, le) (rate(http_request_duration_ms_sum[1m])) / avg by(method) (rate(http_request_duration_ms_count[1m]))",
+          "expr": "avg by(method, route, le) (rate(http_request_duration_ms_sum[1m]) / rate(http_request_duration_ms_count[1m]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "{{method}}",
+          "legendFormat": "{{method}} {{route}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -211,38 +211,38 @@
         {
           "datasource": "${DS_PROMETHEUS}",
           "editorMode": "code",
-          "expr": "sum by (le) (increase(http_request_duration_ms_count{statusCode=~\"2.*\"}[1m]))",
+          "expr": "sum by (method, route, le) (increase(http_request_duration_ms_count{statusCode=~\"2.*\"}[1m]))",
           "instant": false,
-          "legendFormat": "2xx",
+          "legendFormat": "2xx {{meghot}} {{route}}",
           "range": true,
           "refId": "A"
         },
         {
           "datasource": "${DS_PROMETHEUS}",
           "editorMode": "code",
-          "expr": "sum by (le) (increase(http_request_duration_ms_count{statusCode=~\"3.*\"}[1m]))",
+          "expr": "sum by (method, route, le) (increase(http_request_duration_ms_count{statusCode=~\"3.*\"}[1m]))",
           "instant": false,
-          "legendFormat": "3xx",
+          "legendFormat": "3xx {{meghot}} {{route}}",
           "range": true,
           "refId": "B"
         },
         {
           "datasource": "${DS_PROMETHEUS}",
           "editorMode": "code",
-          "expr": "sum by (le) (increase(http_request_duration_ms_count{statusCode=~\"4.*\"}[1m]))",
+          "expr": "sum by (method, route, le) (increase(http_request_duration_ms_count{statusCode=~\"4.*\"}[1m]))",
           "hide": false,
           "instant": false,
-          "legendFormat": "4xx",
+          "legendFormat": "4xx {{meghot}} {{route}}",
           "range": true,
           "refId": "C"
         },
         {
           "datasource": "${DS_PROMETHEUS}",
           "editorMode": "code",
-          "expr": "sum by (le) (increase(http_request_duration_ms_count{statusCode=~\"5.*\"}[1m]))",
+          "expr": "sum by (method, route, le) (increase(http_request_duration_ms_count{statusCode=~\"5.*\"}[1m]))",
           "hide": false,
           "instant": false,
-          "legendFormat": "5xx",
+          "legendFormat": "5xx {{meghot}} {{route}}",
           "range": true,
           "refId": "D"
         }

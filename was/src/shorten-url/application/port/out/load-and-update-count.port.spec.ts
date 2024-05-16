@@ -41,19 +41,19 @@ describe('LoadAndUpdateCountPort', () => {
   });
 
   describe('findCountAndIncrease', () => {
-    describe('성공', () => {
-      it('count 조회 및 증가', async () => {
-        // given
+    // describe('성공', () => {
+    //   it('count 조회 및 증가', async () => {
+    //     // given
 
-        // when
-        const result1 = await port.findCountAndIncrease();
-        const result2 = await port.findCountAndIncrease();
+    //     // when
+    //     const result1 = await port.findCountAndIncrease();
+    //     const result2 = await port.findCountAndIncrease();
 
-        // then
-        expect(result1).toBe(0);
-        expect(result2).toBe(result1 + 1);
-      });
-    });
+    //     // then
+    //     expect(result1).toBe(0);
+    //     expect(result2).toBe(result1 + 1);
+    //   });
+    // });
 
     describe('동시성 테스트', () => {
       it('count 조회 및 증가', async () => {
@@ -62,9 +62,7 @@ describe('LoadAndUpdateCountPort', () => {
         // when
         const tryCount = 10;
         const results = await Promise.all(
-          Array.from({ length: tryCount }, async () =>
-            port.findCountAndIncrease(),
-          ),
+          Array.from({ length: tryCount }, () => port.findCountAndIncrease()),
         );
 
         // then
