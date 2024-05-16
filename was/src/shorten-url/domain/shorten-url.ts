@@ -1,4 +1,4 @@
-import { Builder } from 'src/common/util/builder.util';
+import { Builder } from 'src/util/builder.util';
 
 export class ShortenUrl {
   readonly key: string;
