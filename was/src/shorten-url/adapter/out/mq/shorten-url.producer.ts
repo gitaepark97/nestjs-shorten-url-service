@@ -14,6 +14,8 @@ export class ShortenUrlProducer implements UpdateShortenUrlPort {
     await this.shortenUrlQueue.add('increaseVisitCountByKey', shortenUrlKey, {
       attempts: 3,
       backoff: 1000,
+      removeOnComplete: true,
+      removeOnFail: true,
     });
   }
 }
