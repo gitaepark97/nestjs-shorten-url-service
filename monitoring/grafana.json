@@ -7,14 +7,6 @@
       "type": "datasource",
       "pluginId": "prometheus",
       "pluginName": "Prometheus"
-    },
-    {
-      "name": "DS_LOKI",
-      "label": "loki",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "loki",
-      "pluginName": "loki"
     }
   ],
   "annotations": {
@@ -120,7 +112,7 @@
           "datasource": "${DS_PROMETHEUS}",
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "avg by(method, route, le) (rate(http_request_duration_ms_sum[1m]) / rate(http_request_duration_ms_count[1m]))",
+          "expr": "avg by(method, route, le) (rate(http_request_duration_ms_sum[1m])) / avg by(method, route, le) (rate(http_request_duration_ms_count[1m]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -567,37 +559,6 @@
       ],
       "title": "Number of Valid vs Errors",
       "type": "timeseries"
-    },
-    {
-      "datasource": "${DS_LOKI}",
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 24
-      },
-      "id": 7,
-      "options": {
-        "dedupStrategy": "none",
-        "enableLogDetails": true,
-        "prettifyLogMessage": false,
-        "showCommonLabels": false,
-        "showLabels": false,
-        "showTime": false,
-        "sortOrder": "Descending",
-        "wrapLogMessage": false
-      },
-      "targets": [
-        {
-          "datasource": "${DS_LOKI}",
-          "editorMode": "code",
-          "expr": "{job=\"info\"}",
-          "queryType": "range",
-          "refId": "A"
-        }
-      ],
-      "title": "Logs",
-      "type": "logs"
     }
   ],
   "refresh": "10s",

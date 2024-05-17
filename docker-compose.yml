@@ -25,7 +25,9 @@ services:
   cache:
     image: redis
     container_name: cache
-    command: redis-server --requirepass dev_password
+    volumes:
+      - ./cache/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
 
   was:
     container_name: was

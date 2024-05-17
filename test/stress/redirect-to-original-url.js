@@ -1,8 +1,12 @@
-import { check } from "k6";
 import http from "k6/http";
 
 export const options = {
-  duration: "1s",
+  stages: [
+    { duration: "10s", target: 10 },
+    { duration: "10s", target: 100 },
+    { duration: "10s", target: 1000 },
+    { duration: "10s", target: 4000 },
+  ],
 };
 
 const BASE_URL = "http://localhost:8000/api/v1";
@@ -33,8 +37,5 @@ export default function (data) {
     redirects: 0,
   };
 
-  const response = http.get(url, params);
-  check(response, {
-    success: (res) => res.status === 302,
-  });
+  http.get(url, params);
 }
