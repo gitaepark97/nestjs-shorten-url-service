@@ -25,7 +25,7 @@ import {
 import {
   ShortenUrlAdapter,
   ShortenUrlRepository,
-} from './adapter/out/persistence/shorten-url.repository';
+} from './adapter/out/persistence/shorten-url.adapter';
 import { CreateShortenUrlUseCase } from './application/port/in/create-shorten-url.use-case';
 import { GetOriginalUrlUseCase } from './application/port/in/get-original-url.use-case';
 import { GetShortenUrlsUseCase } from './application/port/in/get-shorten-urls.use-case';

@@ -2,7 +2,7 @@ import { InjectQueue, Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import { Job, Queue } from 'bull';
 import { Consumer } from 'src/util/consumer.utils';
-import { ShortenUrlRepository } from '../persistence/shorten-url.repository';
+import { ShortenUrlRepository } from '../persistence/shorten-url.adapter';
 
 @Processor('daedLetterQueue')
 export class DeadLetterConsumer extends Consumer {

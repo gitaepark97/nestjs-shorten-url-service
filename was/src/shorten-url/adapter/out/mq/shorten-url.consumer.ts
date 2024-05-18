@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 import { Job, Queue } from 'bull';
 import { Consumer } from 'src/util/consumer.utils';
 import { MessageRepository } from '../persistence/message.adapter';
-import { ShortenUrlRepository } from '../persistence/shorten-url.repository';
+import { ShortenUrlRepository } from '../persistence/shorten-url.adapter';
 
 @Processor('shortenUrlQueue')
 export class ShortenUrlConsumer extends Consumer {
