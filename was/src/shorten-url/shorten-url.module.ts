@@ -1,5 +1,5 @@
 import { BullModule } from '@nestjs/bull';
-import { Module, Provider } from '@nestjs/common';
+import { Logger, Module, Provider } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ShortenUrlController } from './adapter/in/web/shorten-url.controller';
 import { ShortenUrlCacheAdapter } from './adapter/out/memory/shorten-url-cache.adapter';
@@ -11,13 +11,21 @@ import {
   CountSchema,
 } from './adapter/out/persistence/entity/count.entity';
 import {
+  MessageEntity,
+  MessageSchema,
+} from './adapter/out/persistence/entity/message.entity';
+import {
   ShortenUrlEntity,
   ShortenUrlSchema,
 } from './adapter/out/persistence/entity/shorten-url.entity';
 import {
+  MessageAdapter,
+  MessageRepository,
+} from './adapter/out/persistence/message.adapter';
+import {
   ShortenUrlAdapter,
   ShortenUrlRepository,
-} from './adapter/out/persistence/shorten-url.adapter';
+} from './adapter/out/persistence/shorten-url.repository';
 import { CreateShortenUrlUseCase } from './application/port/in/create-shorten-url.use-case';
 import { GetOriginalUrlUseCase } from './application/port/in/get-original-url.use-case';
 import { GetShortenUrlsUseCase } from './application/port/in/get-shorten-urls.use-case';
@@ -30,6 +38,11 @@ import { UpdateShortenUrlPort } from './application/port/out/update-shorten-url.
 import { CreateShortenUrlService } from './application/service/create-shorten-url.service';
 import { GetOriginalUrlService } from './application/service/get-original-url.service';
 import { GetShortenUrlsService } from './application/service/get-shorten-urls.service';
+
+const repositories: Provider[] = [
+  { provide: MessageRepository, useClass: MessageAdapter },
+  { provide: ShortenUrlRepository, useClass: ShortenUrlAdapter },
+];
 
 const ports: Provider[] = [
   { provide: LoadAndUpdateCountPort, useClass: CountAdapter },
@@ -54,15 +67,18 @@ const useCases: Provider[] = [
     MongooseModule.forFeature([
       { name: ShortenUrlEntity.name, schema: ShortenUrlSchema },
       { name: CountEntity.name, schema: CountSchema },
+      { name: MessageEntity.name, schema: MessageSchema },
     ]),
     BullModule.registerQueue({ name: 'shortenUrlQueue' }),
+    BullModule.registerQueue({ name: 'deadLetterQueue' }),
   ],
   controllers: [ShortenUrlController],
   providers: [
-    { provide: ShortenUrlRepository, useClass: ShortenUrlAdapter },
-    ShortenUrlConsumer,
+    ...repositories,
     ...ports,
     ...useCases,
+    ShortenUrlConsumer,
+    Logger,
   ],
 })
 export class ShortenUrlModule {}

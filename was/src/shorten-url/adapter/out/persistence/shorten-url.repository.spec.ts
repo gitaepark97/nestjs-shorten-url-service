@@ -9,7 +9,7 @@ import {
 import {
   ShortenUrlAdapter,
   ShortenUrlRepository,
-} from 'src/shorten-url/adapter/out/persistence/shorten-url.adapter';
+} from 'src/shorten-url/adapter/out/persistence/shorten-url.repository';
 
 describe('ShortenUrlRepository', () => {
   let repository: ShortenUrlRepository;
