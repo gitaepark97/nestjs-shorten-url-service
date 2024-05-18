@@ -16,7 +16,6 @@ export class DeadLetterConsumer extends Consumer {
 
   @Process('increaseVisitCountByKey')
   async increaseVisitCountByKey(job: Job): Promise<void> {
-    console.log('hi');
     await this.shortenUrlRepository.increaseVisitCountByKey(job.data);
   }
 }
