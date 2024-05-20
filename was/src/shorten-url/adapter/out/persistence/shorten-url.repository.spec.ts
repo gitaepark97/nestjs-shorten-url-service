@@ -7,9 +7,9 @@ import {
   ShortenUrlSchema,
 } from 'src/shorten-url/adapter/out/persistence/entity/shorten-url.entity';
 import {
-  ShortenUrlAdapter,
   ShortenUrlRepository,
-} from 'src/shorten-url/adapter/out/persistence/shorten-url.adapter';
+  ShortenUrlRepositoryImpl,
+} from 'src/shorten-url/adapter/out/persistence/shorten-url.repository';
 
 describe('ShortenUrlRepository', () => {
   let repository: ShortenUrlRepository;
@@ -26,7 +26,7 @@ describe('ShortenUrlRepository', () => {
       providers: [
         {
           provide: ShortenUrlRepository,
-          useClass: ShortenUrlAdapter,
+          useClass: ShortenUrlRepositoryImpl,
         },
       ],
     }).compile();

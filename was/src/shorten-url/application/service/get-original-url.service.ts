@@ -6,7 +6,7 @@ import { LoadShortenUrlPort } from '../port/out/load-shorten-url.port';
 import { UpdateShortenUrlPort } from '../port/out/update-shorten-url.port';
 
 @Injectable()
-export class GetOriginalUrlService implements GetOriginalUrlUseCase {
+export class GetOriginalUrlServiceImpl implements GetOriginalUrlUseCase {
   constructor(
     private readonly loadShortenUrlCachePort: LoadShortenUrlCachePort,
     private readonly createShortenUrlCachePort: CreateShortenUrlCachePort,

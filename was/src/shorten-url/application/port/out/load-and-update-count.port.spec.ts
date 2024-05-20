@@ -2,7 +2,7 @@ import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Connection } from 'mongoose';
 import { ConfigModule } from 'src/config/config.module';
-import { CountAdapter } from 'src/shorten-url/adapter/out/persistence/count.adapter';
+import { CountRepositoryImpl } from 'src/shorten-url/adapter/out/persistence/count.repository';
 import {
   CountEntity,
   CountSchema,
@@ -24,7 +24,7 @@ describe('LoadAndUpdateCountPort', () => {
       providers: [
         {
           provide: LoadAndUpdateCountPort,
-          useClass: CountAdapter,
+          useClass: CountRepositoryImpl,
         },
       ],
     }).compile();
@@ -41,28 +41,32 @@ describe('LoadAndUpdateCountPort', () => {
   });
 
   describe('findCountAndIncrease', () => {
-    // describe('성공', () => {
-    //   it('count 조회 및 증가', async () => {
-    //     // given
+    describe('성공', () => {
+      it('count 조회 및 증가', async () => {
+        // given
+        const increase = 1;
 
-    //     // when
-    //     const result1 = await port.findCountAndIncrease();
-    //     const result2 = await port.findCountAndIncrease();
+        // when
+        const result1 = await port.findCountAndIncrease(increase);
+        const result2 = await port.findCountAndIncrease(increase);
 
-    //     // then
-    //     expect(result1).toBe(0);
-    //     expect(result2).toBe(result1 + 1);
-    //   });
-    // });
+        // then
+        expect(result1).toBe(0);
+        expect(result2).toBe(result1 + increase);
+      });
+    });
 
     describe('동시성 테스트', () => {
       it('count 조회 및 증가', async () => {
         // given
+        const increase = 1;
 
         // when
         const tryCount = 10;
         const results = await Promise.all(
-          Array.from({ length: tryCount }, () => port.findCountAndIncrease()),
+          Array.from({ length: tryCount }, () =>
+            port.findCountAndIncrease(increase),
+          ),
         );
 
         // then

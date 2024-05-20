@@ -6,7 +6,7 @@ import { LoadShortenUrlCachePort } from 'src/shorten-url/application/port/out/lo
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
 
 @Injectable()
-export class ShortenUrlCacheAdapter
+export class ShortenUrlCacheRepositoryImpl
   implements LoadShortenUrlCachePort, CreateShortenUrlCachePort
 {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManage: Cache) {}

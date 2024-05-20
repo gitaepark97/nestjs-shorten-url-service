@@ -3,12 +3,12 @@ import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
 import { CreateShortenUrlCommand } from '../port/in/command/create-shorten-url.command';
 import { CreateShortenUrlUseCase } from '../port/in/create-shorten-url.use-case';
 import { CreateShortenUrlPort } from '../port/out/create-shorten-url.port';
-import { LoadAndUpdateCountPort } from '../port/out/load-and-update-count.port';
+import { CountService } from './count.service';
 
 @Injectable()
-export class CreateShortenUrlService implements CreateShortenUrlUseCase {
+export class CreateShortenUrlServiceImpl implements CreateShortenUrlUseCase {
   constructor(
-    private readonly loadAndUpdateCountPort: LoadAndUpdateCountPort,
+    private readonly countService: CountService,
     private readonly createShortenUrlPort: CreateShortenUrlPort,
   ) {}
 
@@ -31,7 +31,7 @@ export class CreateShortenUrlService implements CreateShortenUrlUseCase {
    */
   private async generateShortenUrlKey(): Promise<string> {
     // count 조회 및 증가
-    const count = await this.loadAndUpdateCountPort.findCountAndIncrease();
+    const count = await this.countService.getCurrentCount();
 
     // count를 base64url로 인코딩
     return this.numberToBase64Url(count);

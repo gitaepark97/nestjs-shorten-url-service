@@ -2,7 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Cache } from 'cache-manager';
 import { ConfigModule } from 'src/config/config.module';
-import { ShortenUrlCacheAdapter } from 'src/shorten-url/adapter/out/memory/shorten-url-cache.adapter';
+import { ShortenUrlCacheRepositoryImpl } from 'src/shorten-url/adapter/out/memory/shorten-url-cache.adapter';
 import { LoadShortenUrlCachePort } from './load-shorten-url-cache.port';
 
 describe('LoadShortenUrlCachePort', () => {
@@ -15,7 +15,7 @@ describe('LoadShortenUrlCachePort', () => {
       providers: [
         {
           provide: LoadShortenUrlCachePort,
-          useClass: ShortenUrlCacheAdapter,
+          useClass: ShortenUrlCacheRepositoryImpl,
         },
       ],
     }).compile();
