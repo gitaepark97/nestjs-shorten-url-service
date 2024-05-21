@@ -1,0 +1,42 @@
+version: "3.4"
+
+services:
+  mongodb:
+    image: mongo
+    container_name: test_mongodb
+    ports:
+      - 27010:27017
+    environment:
+      - MONGO_INITDB_DATABASE=test_database
+
+  redis:
+    image: redis
+    container_name: test_redis
+    ports:
+      - 6370:6379
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    container_name: test_zookeeper
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+
+  kafka:
+    image: confluentinc/cp-kafka
+    container_name: test_kafka
+    ports:
+      - 29090:29090
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://test_kafka:9092,PLAINTEXT_HOST://localhost:29090
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    depends_on:
+      - zookeeper
