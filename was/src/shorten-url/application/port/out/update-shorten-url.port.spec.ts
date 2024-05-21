@@ -23,7 +23,7 @@ describe('UpdateShortenUrlPort', () => {
     port = module.get<UpdateShortenUrlPort>(UpdateShortenUrlPort);
     producerService = module.get<ProducerService>(ProducerService);
     await producerService.onModuleInit();
-  }, 10000);
+  }, 50000);
 
   afterEach(async () => {
     await producerService.onApplicationShutdown();
