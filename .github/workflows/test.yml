@@ -15,7 +15,7 @@ jobs:
       - name: Setup container
         uses: hoverkraft-tech/compose-action@v1.5.1
         with:
-          compose-file: "../../docker/docker-compose.test.yml"
+          compose-file: "../../docker-compose.test.yml"
       - name: Setup node.js
         uses: actions/setup-node@v3
         with:
