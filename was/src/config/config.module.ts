@@ -1,4 +1,3 @@
-import { BullModule } from '@nestjs/bull';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigType, ConfigModule as NestConfigModule } from '@nestjs/config';
@@ -25,10 +24,6 @@ import { serverConfig } from './server.config';
       inject: [cacheConfig.KEY],
       useFactory: (config: ConfigType<typeof cacheConfig>) => config,
       isGlobal: true,
-    }),
-    BullModule.forRootAsync({
-      inject: [mqConfig.KEY],
-      useFactory: (config: ConfigType<typeof mqConfig>) => config,
     }),
   ],
 })

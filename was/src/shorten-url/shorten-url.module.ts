@@ -1,6 +1,6 @@
-import { BullModule } from '@nestjs/bull';
-import { Logger, Module, Provider } from '@nestjs/common';
+import { Module, Provider } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { KafkaModule } from 'src/kafka/kafka.module';
 import { ShortenUrlController } from './adapter/in/web/shorten-url.controller';
 import { ShortenUrlCacheRepositoryImpl } from './adapter/out/memory/shorten-url-cache.adapter';
 import { ShortenUrlConsumer } from './adapter/out/mq/shorten-url.consumer';
@@ -70,8 +70,7 @@ const useCases: Provider[] = [
       { name: ShortenUrlEntity.name, schema: ShortenUrlSchema },
       { name: CountEntity.name, schema: CountSchema },
     ]),
-    BullModule.registerQueue({ name: 'shortenUrlQueue' }),
-    BullModule.registerQueue({ name: 'deadLetterQueue' }),
+    KafkaModule,
   ],
   controllers: [ShortenUrlController],
   providers: [
@@ -80,7 +79,6 @@ const useCases: Provider[] = [
     ...ports,
     ...useCases,
     ShortenUrlConsumer,
-    Logger,
   ],
 })
 export class ShortenUrlModule {}

@@ -22,15 +22,14 @@ class EnvironmentVariables {
   @IsNotEmpty()
   MONGODB_URI: string;
 
+  @IsNotEmpty()
+  REDIS_URL: string;
+
   @IsNumberString()
   CACHE_TTL: string;
 
   @IsNotEmpty()
-  REDIS_MQ_HOST: string;
-  @IsNumberString()
-  REDIS_MQ_PORT: string;
-  @IsNotEmpty()
-  REDIS_MQ_PASSWORD: string;
+  KAFKA_BROKERS: string;
 }
 
 export const validate = (config: Record<string, unknown>) => {

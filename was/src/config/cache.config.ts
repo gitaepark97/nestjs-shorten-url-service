@@ -7,7 +7,7 @@ export const cacheConfig = registerAs(
   () =>
     <RedisClientOptions>{
       store: redisStore,
-      url: process.env.REDIS_CACHE_URL,
+      url: process.env.REDIS_URL,
       ttl: parseInt(process.env.CACHE_TTL!),
     },
 );

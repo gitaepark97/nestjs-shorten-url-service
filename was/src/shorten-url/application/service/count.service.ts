@@ -4,7 +4,7 @@ import { Mutex } from 'src/util/mutex.util';
 import { LoadAndUpdateCountPort } from '../port/out/load-and-update-count.port';
 
 export abstract class CountService {
-  static COUNT_RANGE = 10000;
+  static readonly COUNT_RANGE = 10000;
 
   abstract getCurrentCount(): Promise<number>;
 }
