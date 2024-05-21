@@ -30,19 +30,12 @@ jobs:
           ZOOKEEPER_TICK_TIME: 2000
           ZOOKEEPER_INIT_LIMIT: 5
           ZOOKEEPER_SYNC_LIMIT: 2
-      kafka:
-        image: confluentinc/cp-kafka
-        ports:
-          - 29090:29090
-        env:
-          KAFKA_BROKER_ID: 1
-          KAFKA_ZOOKEEPER_CONNECT: localhost:2181
-          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://127.0.0.1:29090
-          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-          KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-          KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
     steps:
+      - name: Start Kafka
+        uses: 280780363/kafka-action@v1.0
+        with:
+          kafka port: 29090
       - name: Checkout Source Code
         uses: actions/checkout@v3
       - name: Setup node.js
