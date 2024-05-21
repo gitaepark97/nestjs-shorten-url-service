@@ -1,9 +1,9 @@
 version: "3.4"
 
 services:
-  db:
+  mongodb:
     image: mongo
-    container_name: db
+    container_name: mongodb
     ports:
       - 27017:27017
     environment:
@@ -11,22 +11,38 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=root_password
       - MONGO_INITDB_DATABASE=dev_database
     volumes:
-      - ./db/initdb.d:/docker-entrypoint-initdb.d:ro
-      - db_data:/data/db
+      - ./db/mongodb/initdb.d:/docker-entrypoint-initdb.d:ro
+      - mongodb_data:/data/db
 
-  mq:
-    image: redis
-    container_name: mq
-    volumes:
-      - mq_data:/data
-      - ./mq/redis.conf:/usr/local/etc/redis/redis.conf
-    command: redis-server /usr/local/etc/redis/redis.conf
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
 
-  cache:
+  kafka:
+    image: confluentinc/cp-kafka
+    container_name: kafka
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    depends_on:
+      - zookeeper
+
+  redis:
     image: redis
-    container_name: cache
+    container_name: redis
     volumes:
-      - ./cache/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./cache/redis/redis.conf:/usr/local/etc/redis/redis.conf
     command: redis-server /usr/local/etc/redis/redis.conf
 
   was:
@@ -40,48 +56,47 @@ services:
       - ./was:/app
       - /app/node_modules
     depends_on:
-      - db
-      - mq
-      - cache
+      - mongodb
+      - kafka
+      - redis
 
-  loki:
-    image: grafana/loki
-    container_name: loki
-    volumes:
-      - ./monitoring/loki-config.yml:/etc/loki/config.yml
-    command: -config.file=/etc/loki/config.yml
+  # loki:
+  #   image: grafana/loki
+  #   container_name: loki
+  #   volumes:
+  #     - ./monitoring/loki-config.yml:/etc/loki/config.yml
+  #   command: -config.file=/etc/loki/config.yml
 
-  promtail:
-    image: grafana/promtail
-    container_name: promtail
-    volumes:
-      - ./was/logs:/logs
-      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml
-    command: -config.file=/etc/promtail/config.yml
-    depends_on:
-      - loki
+  # promtail:
+  #   image: grafana/promtail
+  #   container_name: promtail
+  #   volumes:
+  #     - ./was/logs:/logs
+  #     - ./monitoring/promtail-config.yml:/etc/promtail/config.yml
+  #   command: -config.file=/etc/promtail/config.yml
+  #   depends_on:
+  #     - loki
 
-  prometheus:
-    image: prom/prometheus
-    user: root
-    container_name: prometheus
-    volumes:
-      - ./monitoring/prometheus-config.yml:/etc/prometheus/config.yml
-      - prometheus_data:/prometheus/data
-    command:
-      - "--web.enable-lifecycle"
-      - "--config.file=/etc/prometheus/config.yml"
+  # prometheus:
+  #   image: prom/prometheus
+  #   user: root
+  #   container_name: prometheus
+  #   volumes:
+  #     - ./monitoring/prometheus-config.yml:/etc/prometheus/config.yml
+  #     - prometheus_data:/prometheus/data
+  #   command:
+  #     - "--web.enable-lifecycle"
+  #     - "--config.file=/etc/prometheus/config.yml"
 
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    ports:
-      - 3000:3000
-    volumes:
-      - grafana_data:/var/lib/grafana
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: grafana
+  #   ports:
+  #     - 3000:3000
+  #   volumes:
+  #     - grafana_data:/var/lib/grafana
 
 volumes:
-  db_data:
-  mq_data:
-  prometheus_data:
-  grafana_data:
+  mongodb_data:
+  # prometheus_data:
+  # grafana_data:

@@ -1,24 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
-import { CreateShortenUrlService } from '../../service/create-shorten-url.service';
+import { CountService } from '../../service/count.service';
+import { CreateShortenUrlServiceImpl } from '../../service/create-shorten-url.service';
 import { CreateShortenUrlPort } from '../out/create-shorten-url.port';
-import { LoadAndUpdateCountPort } from '../out/load-and-update-count.port';
 import { CreateShortenUrlCommand } from './command/create-shorten-url.command';
 import { CreateShortenUrlUseCase } from './create-shorten-url.use-case';
 
 describe('CreateShortenUrlUseCase', () => {
   let useCase: CreateShortenUrlUseCase;
-  let loadAndUpdateCountPort: LoadAndUpdateCountPort;
+  let countService: CountService;
   let createShortenUrlPort: CreateShortenUrlPort;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        { provide: CreateShortenUrlUseCase, useClass: CreateShortenUrlService },
         {
-          provide: LoadAndUpdateCountPort,
+          provide: CreateShortenUrlUseCase,
+          useClass: CreateShortenUrlServiceImpl,
+        },
+        {
+          provide: CountService,
           useValue: {
-            findCountAndIncrease: jest.fn(),
+            getCurrentCount: jest.fn(),
           },
         },
         {
@@ -31,9 +34,7 @@ describe('CreateShortenUrlUseCase', () => {
     }).compile();
 
     useCase = module.get<CreateShortenUrlUseCase>(CreateShortenUrlUseCase);
-    loadAndUpdateCountPort = module.get<LoadAndUpdateCountPort>(
-      LoadAndUpdateCountPort,
-    );
+    countService = module.get<CountService>(CountService);
     createShortenUrlPort =
       module.get<CreateShortenUrlPort>(CreateShortenUrlPort);
   });
@@ -42,8 +43,8 @@ describe('CreateShortenUrlUseCase', () => {
     describe('성공', () => {
       it('단축 URL 생성', async () => {
         // given
-        const executeMock = jest
-          .spyOn(loadAndUpdateCountPort, 'findCountAndIncrease')
+        const getCurrentCountMock = jest
+          .spyOn(countService, 'getCurrentCount')
           .mockResolvedValueOnce(0);
         const saveMock = jest
           .spyOn(createShortenUrlPort, 'createShortenUrl')
@@ -72,19 +73,17 @@ describe('CreateShortenUrlUseCase', () => {
         expect(result.createdAt).toEqual(expect.any(Date));
         expect(result.updatedAt).toEqual(expect.any(Date));
 
-        expect(executeMock).toHaveBeenCalledTimes(1);
+        expect(getCurrentCountMock).toHaveBeenCalledTimes(1);
         expect(saveMock).toHaveBeenCalledTimes(1);
       });
 
       it('동일한 원본 URL로부터 2개의 단축 URL 생성', async () => {
         // given
 
-        const executeMock = jest
-          .spyOn(loadAndUpdateCountPort, 'findCountAndIncrease')
+        const getCurrentCountMock = jest
+          .spyOn(countService, 'getCurrentCount')
           .mockResolvedValueOnce(0);
-        jest
-          .spyOn(loadAndUpdateCountPort, 'findCountAndIncrease')
-          .mockResolvedValueOnce(1);
+        jest.spyOn(countService, 'getCurrentCount').mockResolvedValueOnce(1);
         const saveMock = jest
           .spyOn(createShortenUrlPort, 'createShortenUrl')
           .mockImplementation(async (shortenUrl) =>
@@ -108,7 +107,7 @@ describe('CreateShortenUrlUseCase', () => {
         // then
         expect(result1.key).not.toBe(result2.key);
 
-        expect(executeMock).toHaveBeenCalledTimes(2);
+        expect(getCurrentCountMock).toHaveBeenCalledTimes(2);
         expect(saveMock).toHaveBeenCalledTimes(2);
       });
     });

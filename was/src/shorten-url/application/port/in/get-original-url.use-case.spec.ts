@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
-import { GetOriginalUrlService } from '../../service/get-original-url.service';
+import { GetOriginalUrlServiceImpl } from '../../service/get-original-url.service';
 import { CreateShortenUrlCachePort } from '../out/create-shorten-url-cache.port';
 import { LoadShortenUrlCachePort } from '../out/load-shorten-url-cache.port';
 import { LoadShortenUrlPort } from '../out/load-shorten-url.port';
@@ -17,7 +17,7 @@ describe('GetOriginalUrlUseCase', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        { provide: GetOriginalUrlUseCase, useClass: GetOriginalUrlService },
+        { provide: GetOriginalUrlUseCase, useClass: GetOriginalUrlServiceImpl },
         {
           provide: LoadShortenUrlCachePort,
           useValue: {

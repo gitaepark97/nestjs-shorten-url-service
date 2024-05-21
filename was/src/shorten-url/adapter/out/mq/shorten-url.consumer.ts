@@ -1,13 +1,21 @@
-import { Process, Processor } from '@nestjs/bull';
-import { Job } from 'bull';
-import { ShortenUrlRepository } from '../persistence/shorten-url.adapter';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { ConsumerService } from 'src/kafka/consumer.service';
+import { ShortenUrlRepository } from '../persistence/shorten-url.repository';
 
-@Processor('shortenUrlQueue')
-export class ShortenUrlConsumer {
-  constructor(private readonly shortenUrlRepository: ShortenUrlRepository) {}
+@Injectable()
+export class ShortenUrlConsumer implements OnModuleInit {
+  constructor(
+    private readonly consumerService: ConsumerService,
+    private readonly shortenUrlRepository: ShortenUrlRepository,
+  ) {}
 
-  @Process('increaseVisitCountByKey')
-  async increaseVisitCountByKey(job: Job): Promise<void> {
-    await this.shortenUrlRepository.increaseVisitCountByKey(job.data);
+  async onModuleInit() {
+    await this.consumerService.subscribe('increaseVisitCountByKey', {
+      eachMessage: async ({ message }) => {
+        await this.shortenUrlRepository.increaseVisitCountByKey(
+          message.value!.toString(),
+        );
+      },
+    });
   }
 }

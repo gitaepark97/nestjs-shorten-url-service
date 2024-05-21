@@ -6,7 +6,7 @@ import {
   ShortenUrlEntity,
   ShortenUrlSchema,
 } from 'src/shorten-url/adapter/out/persistence/entity/shorten-url.entity';
-import { ShortenUrlAdapter } from 'src/shorten-url/adapter/out/persistence/shorten-url.adapter';
+import { ShortenUrlRepositoryImpl } from 'src/shorten-url/adapter/out/persistence/shorten-url.repository';
 import { LoadShortenUrlPort } from './load-shorten-url.port';
 
 describe('LoadShortenUrlPort', () => {
@@ -24,7 +24,7 @@ describe('LoadShortenUrlPort', () => {
       providers: [
         {
           provide: LoadShortenUrlPort,
-          useClass: ShortenUrlAdapter,
+          useClass: ShortenUrlRepositoryImpl,
         },
       ],
     }).compile();

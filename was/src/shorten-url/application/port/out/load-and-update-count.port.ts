@@ -1,3 +1,3 @@
 export abstract class LoadAndUpdateCountPort {
-  abstract findCountAndIncrease(): Promise<number>;
+  abstract findCountAndIncrease(increase: number): Promise<number>;
 }
