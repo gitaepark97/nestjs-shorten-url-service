@@ -16,7 +16,6 @@ export class ProducerService implements OnModuleInit, OnApplicationShutdown {
   constructor(
     @Inject(mqConfig.KEY) private readonly config: ConfigType<typeof mqConfig>,
   ) {
-    console.log(config.kafka);
     this.kafka = new Kafka(config.kafka);
     this.producer = this.kafka.producer(this.config.producer);
   }
