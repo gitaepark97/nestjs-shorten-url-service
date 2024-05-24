@@ -9,7 +9,7 @@ import {
 export const mqConfig = registerAs('mq', () => ({
   kafka: {
     brokers: process.env.KAFKA_BROKERS!.split(','),
-    logLevel: logLevel.NOTHING,
+    logLevel: logLevel.ERROR,
   },
   producer: <ProducerConfig>{
     createPartitioner: Partitioners.LegacyPartitioner,
