@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
 import { CreateShortenUrlCommand } from '../port/in/command/create-shorten-url.command';
 import { CreateShortenUrlUseCase } from '../port/in/create-shorten-url.use-case';
+import { CreateShortenUrlCachePort } from '../port/out/create-shorten-url-cache.port';
 import { CreateShortenUrlPort } from '../port/out/create-shorten-url.port';
 import { CountService } from './count.service';
 
@@ -10,6 +11,7 @@ export class CreateShortenUrlServiceImpl implements CreateShortenUrlUseCase {
   constructor(
     private readonly countService: CountService,
     private readonly createShortenUrlPort: CreateShortenUrlPort,
+    private readonly createShortenUrlCachePort: CreateShortenUrlCachePort,
   ) {}
 
   async execute(command: CreateShortenUrlCommand): Promise<ShortenUrl> {
@@ -17,13 +19,15 @@ export class CreateShortenUrlServiceImpl implements CreateShortenUrlUseCase {
     const shortenUrlKey = await this.generateShortenUrlKey();
 
     // 단축 URL 생성
-    const shortenUrl = ShortenUrl.builder()
+    let shortenUrl = ShortenUrl.builder()
       .set('key', shortenUrlKey)
       .set('originalUrl', command.originalUrl)
       .build();
+    shortenUrl = await this.createShortenUrlPort.createShortenUrl(shortenUrl);
 
-    // 단축 URL 저장
-    return this.createShortenUrlPort.createShortenUrl(shortenUrl);
+    // cache 생성
+    await this.createShortenUrlCachePort.createShortenUrlCache(shortenUrl);
+    return shortenUrl;
   }
 
   /**

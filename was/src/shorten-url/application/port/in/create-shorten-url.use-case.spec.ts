@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
 import { CountService } from '../../service/count.service';
 import { CreateShortenUrlServiceImpl } from '../../service/create-shorten-url.service';
+import { CreateShortenUrlCachePort } from '../out/create-shorten-url-cache.port';
 import { CreateShortenUrlPort } from '../out/create-shorten-url.port';
 import { CreateShortenUrlCommand } from './command/create-shorten-url.command';
 import { CreateShortenUrlUseCase } from './create-shorten-url.use-case';
@@ -10,6 +11,7 @@ describe('CreateShortenUrlUseCase', () => {
   let useCase: CreateShortenUrlUseCase;
   let countService: CountService;
   let createShortenUrlPort: CreateShortenUrlPort;
+  let createShortenUrlCachePort: CreateShortenUrlCachePort;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -30,6 +32,12 @@ describe('CreateShortenUrlUseCase', () => {
             createShortenUrl: jest.fn(),
           },
         },
+        {
+          provide: CreateShortenUrlCachePort,
+          useValue: {
+            createShortenUrlCache: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -37,6 +45,9 @@ describe('CreateShortenUrlUseCase', () => {
     countService = module.get<CountService>(CountService);
     createShortenUrlPort =
       module.get<CreateShortenUrlPort>(CreateShortenUrlPort);
+    createShortenUrlCachePort = module.get<CreateShortenUrlCachePort>(
+      CreateShortenUrlCachePort,
+    );
   });
 
   describe('execute', () => {
@@ -57,6 +68,9 @@ describe('CreateShortenUrlUseCase', () => {
               .set('updatedAt', new Date())
               .build(),
           );
+        const createShortenUrlCacheMock = jest
+          .spyOn(createShortenUrlCachePort, 'createShortenUrlCache')
+          .mockResolvedValueOnce();
 
         const command = CreateShortenUrlCommand.builder()
           .set('originalUrl', 'https://www.google.com')
@@ -75,6 +89,7 @@ describe('CreateShortenUrlUseCase', () => {
 
         expect(getCurrentCountMock).toHaveBeenCalledTimes(1);
         expect(saveMock).toHaveBeenCalledTimes(1);
+        expect(createShortenUrlCacheMock).toHaveBeenCalledTimes(1);
       });
 
       it('동일한 원본 URL로부터 2개의 단축 URL 생성', async () => {
@@ -95,6 +110,9 @@ describe('CreateShortenUrlUseCase', () => {
               .set('updatedAt', new Date())
               .build(),
           );
+        const createShortenUrlCacheMock = jest
+          .spyOn(createShortenUrlCachePort, 'createShortenUrlCache')
+          .mockResolvedValueOnce();
 
         const command = CreateShortenUrlCommand.builder()
           .set('originalUrl', 'https://www.google.com')
@@ -109,6 +127,7 @@ describe('CreateShortenUrlUseCase', () => {
 
         expect(getCurrentCountMock).toHaveBeenCalledTimes(2);
         expect(saveMock).toHaveBeenCalledTimes(2);
+        expect(createShortenUrlCacheMock).toHaveBeenCalledTimes(2);
       });
     });
   });
