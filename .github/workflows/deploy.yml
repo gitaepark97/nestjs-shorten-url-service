@@ -32,8 +32,8 @@ jobs:
       - run: npm run test && npm run test:e2e
         working-directory: was
 
-  build:
-    name: Build
+  deploy:
+    name: Deploy
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -60,26 +60,20 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest ./was
           docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
-
-  deploy:
-    name: Deploy
-    needs: build
-    runs-on: [self-hosted]
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Pull image from Amazon ECR and restart container
+      - name: Setting Deploy files && Upload to S#
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker container stop was && docker container rm was
-          docker run -d --name was -p ${{ secrets.PORT }}:${{ secrets.PORT }} -v /logs:/app/logs --restart unless-stopped $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker system prune -af && docker volume prune -f
+          mkdir scripts
+          touch scripts/deploy.sh
+          echo "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY" >> scripts/deploy.sh
+          echo "docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> scripts/deploy.sh
+          echo "docker run -d --name was -p ${{ secrets.PORT }}:${{ secrets.PORT }} -v /logs:/app/logs --restart unless-stopped $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> scripts/deploy.sh
+          zip -r deploy-$IMAGE_TAG.zip ./scripts appspec.yml
+          aws s3 cp --region ${{ secrets.AWS_REGION }} --acl private ./deploy-$IMAGE_TAG.zip s3://${{ secrets.S3_BUCKET }}
+      - name: start deploy
+        run: |
+          aws deploy create-deployment --application-name ${{ secrets.CODEDEPLOY_APP_NAME }} \
+          --deployment-config-name CodeDeployDefault.OneAtATime \
+          --deployment-group-name ${{ secrets.CODEDEPLOY_DEPLOY_GROUP }} \
+          --s3-location bucket=${{ secrets.S3_BUCKET }},bundleType=zip,key=deploy-$IMAGE_TAG.zip
