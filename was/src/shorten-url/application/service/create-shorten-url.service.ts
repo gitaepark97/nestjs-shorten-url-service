@@ -27,6 +27,7 @@ export class CreateShortenUrlServiceImpl implements CreateShortenUrlUseCase {
 
     // cache 생성
     await this.createShortenUrlCachePort.createShortenUrlCache(shortenUrl);
+
     return shortenUrl;
   }
 
