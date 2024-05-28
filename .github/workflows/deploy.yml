@@ -68,6 +68,7 @@ jobs:
           touch scripts/deploy.sh
           echo "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY" >> scripts/deploy.sh
           echo "docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> scripts/deploy.sh
+          echo "docker container stop was && docker container rm was" >> scripts/deploy.sh
           echo "docker run -d --name was -p ${{ secrets.PORT }}:${{ secrets.PORT }} -v /logs:/app/logs --restart unless-stopped $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> scripts/deploy.sh
           zip -r deploy-$IMAGE_TAG.zip ./scripts appspec.yml
           aws s3 cp --region ${{ secrets.AWS_REGION }} --acl private ./deploy-$IMAGE_TAG.zip s3://${{ secrets.S3_BUCKET }}
