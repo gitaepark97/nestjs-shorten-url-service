@@ -6,10 +6,8 @@ import {
   ShortenUrlEntity,
   ShortenUrlSchema,
 } from 'src/shorten-url/adapter/out/persistence/entity/shorten-url.entity';
-import {
-  ShortenUrlRepository,
-  ShortenUrlRepositoryImpl,
-} from 'src/shorten-url/adapter/out/persistence/shorten-url.repository';
+import { ShortenUrlRepository } from 'src/shorten-url/adapter/out/persistence/shorten-url.repository';
+import { ShortenUrlRepositoryImpl } from './shorten-url.repository-impl';
 
 describe('ShortenUrlRepository', () => {
   let repository: ShortenUrlRepository;

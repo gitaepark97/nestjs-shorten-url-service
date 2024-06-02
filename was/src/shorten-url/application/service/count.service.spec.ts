@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LoadAndUpdateCountPort } from '../port/out/load-and-update-count.port';
-import { CountService, CountServiceImpl } from './count.service';
+import { CountService } from './count.service';
+import { CountServiceImpl } from './count.service-impl';
 
 describe('CountService', () => {
   let service: CountService;

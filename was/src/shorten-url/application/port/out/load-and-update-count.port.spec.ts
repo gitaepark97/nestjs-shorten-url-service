@@ -2,7 +2,7 @@ import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Connection } from 'mongoose';
 import { ConfigModule } from 'src/config/config.module';
-import { CountRepositoryImpl } from 'src/shorten-url/adapter/out/persistence/count.repository';
+import { CountRepositoryImpl } from 'src/shorten-url/adapter/out/persistence/count.repository-impl';
 import {
   CountEntity,
   CountSchema,

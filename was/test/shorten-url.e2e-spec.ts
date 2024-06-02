@@ -9,21 +9,17 @@ import request from 'supertest';
 describe('ShortenUrlController (e2e)', () => {
   let app: INestApplication;
   let mongooseConnection: Connection;
-  // let producerService: ProducerService;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
-  });
 
-  beforeEach(async () => {
     await app.init();
 
     mongooseConnection = app.get<Connection>(getConnectionToken());
-    // producerService = app.get<ProducerService>(ProducerService);
     await mongooseConnection.createCollection('counts');
     await mongooseConnection.collection('counts').insertOne({ current: 0 });
   }, 30000);

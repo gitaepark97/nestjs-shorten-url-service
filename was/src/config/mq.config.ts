@@ -5,11 +5,15 @@ import {
   ProducerConfig,
   logLevel,
 } from 'kafkajs';
+import { Environment } from './env.validation';
 
 export const mqConfig = registerAs('mq', () => ({
   kafka: {
     brokers: process.env.KAFKA_BROKERS!.split(','),
-    logLevel: logLevel.ERROR,
+    logLevel:
+      process.env.NODE_ENV === Environment.Test
+        ? logLevel.NOTHING
+        : logLevel.ERROR,
   },
   producer: <ProducerConfig>{
     createPartitioner: Partitioners.LegacyPartitioner,

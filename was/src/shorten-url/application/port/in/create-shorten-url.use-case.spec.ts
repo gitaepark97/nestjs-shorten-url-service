@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
 import { CountService } from '../../service/count.service';
-import { CreateShortenUrlServiceImpl } from '../../service/create-shorten-url.service';
+import { CreateShortenUrlServiceImpl } from '../../service/create-shorten-url.service-impl';
 import { CreateShortenUrlCachePort } from '../out/create-shorten-url-cache.port';
 import { CreateShortenUrlPort } from '../out/create-shorten-url.port';
 import { CreateShortenUrlCommand } from './command/create-shorten-url.command';

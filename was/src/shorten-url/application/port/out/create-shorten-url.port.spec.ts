@@ -6,7 +6,7 @@ import {
   ShortenUrlEntity,
   ShortenUrlSchema,
 } from 'src/shorten-url/adapter/out/persistence/entity/shorten-url.entity';
-import { ShortenUrlRepositoryImpl } from 'src/shorten-url/adapter/out/persistence/shorten-url.repository';
+import { ShortenUrlRepositoryImpl } from 'src/shorten-url/adapter/out/persistence/shorten-url.repository-impl';
 import { ShortenUrl } from 'src/shorten-url/domain/shorten-url';
 import { CreateShortenUrlPort } from './create-shorten-url.port';
 
