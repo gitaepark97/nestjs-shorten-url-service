@@ -1,6 +1,6 @@
 export class Mutex {
   private isLocked = false;
-  private watiQueue: (() => void)[] = [];
+  private waitQueue: (() => void)[] = [];
 
   async acquire(): Promise<void> {
     if (!this.isLocked) {
@@ -9,13 +9,13 @@ export class Mutex {
     }
 
     return new Promise<void>((resolve) => {
-      this.watiQueue.push(resolve);
+      this.waitQueue.push(resolve);
     });
   }
 
   release(): void {
-    if (this.watiQueue.length > 0) {
-      const nextResolve = this.watiQueue.shift();
+    if (this.waitQueue.length > 0) {
+      const nextResolve = this.waitQueue.shift();
       if (nextResolve) {
         nextResolve();
       }

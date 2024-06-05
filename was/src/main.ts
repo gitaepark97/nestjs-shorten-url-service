@@ -17,4 +17,5 @@ async function bootstrap() {
   const PORT = app.get(serverConfig.KEY).port;
   await app.listen(PORT);
 }
+
 bootstrap();

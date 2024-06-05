@@ -50,7 +50,7 @@ export class ShortenUrlController {
     content: {
       'application/json': {
         examples: {
-          '원본 URL': {
+          originalUrl: {
             value: generateErrorExample(
               HttpStatus.BAD_REQUEST,
               '/api/shorten-urls',
@@ -94,7 +94,7 @@ export class ShortenUrlController {
     content: {
       'application/json': {
         examples: {
-          '원본 URL': {
+          originalUrl: {
             value: generateErrorExample(
               HttpStatus.BAD_REQUEST,
               '/:shortenUrlKey',
@@ -110,7 +110,7 @@ export class ShortenUrlController {
     content: {
       'application/json': {
         examples: {
-          '단축 URL': {
+          shortenUrl: {
             value: generateErrorExample(
               HttpStatus.NOT_FOUND,
               '/:shortenUrlKey',
@@ -152,14 +152,14 @@ export class ShortenUrlController {
     content: {
       'application/json': {
         examples: {
-          페이지: {
+          pageNumber: {
             value: generateErrorExample(
               HttpStatus.BAD_REQUEST,
               '/:shortenUrlKey',
               '자연수를 입력하세요',
             ),
           },
-          '페이지 크기': {
+          pageSize: {
             value: generateErrorExample(
               HttpStatus.BAD_REQUEST,
               '/:shortenUrlKey',
